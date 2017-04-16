@@ -9,6 +9,7 @@ int main (int argc, char* argv[]) {
 
 	viewer.init();
 
+
 	viewer.start();
 
 	return 0;
