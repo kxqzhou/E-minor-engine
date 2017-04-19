@@ -8,5 +8,8 @@ To run, follow these steps:<br />
   4) make <br />
   5) ./eminor <br />
 
+Compiling this project requires GLFW and GLEW to be installed, which require several dependencies. Below is a command for Unix machines to retrieve the necessary packages:<br />
+sudo apt-get install cmake xorg-dev libxmu-dev libxi-dev libgl-dev dos2unix git wget<br />
+
 Contributors: Kyle Zhou and Ricardo Herrera<br />
 Long live Patrick Star.
