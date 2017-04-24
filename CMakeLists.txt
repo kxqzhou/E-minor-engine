@@ -1,4 +1,6 @@
 
+# special thanks to github.com/danielunderwood/glfw-game-engine for providing an example cmake
+
 # min version
 cmake_minimum_required( VERSION 2.8 )
 

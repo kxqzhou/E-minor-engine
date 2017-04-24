@@ -1,5 +1,7 @@
 .DS_Store
 
+# special thanks to github.com/danielunderwood/glfw-game-engine for providing this example 
+
 # Compiled Object files
 *.slo
 *.lo
