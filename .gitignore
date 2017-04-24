@@ -1,4 +1,52 @@
 .DS_Store
-build
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+*.ko
+*.elf
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.lo
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# CMake Stuff
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
 cmake-build-debug
-.idea
+
+# Build Directories
+[Bb]uild/
+[Bb]in/
+
+# Doxygen Generated Documentation
+docs/
+
+# Idea Directory
+.idea/
