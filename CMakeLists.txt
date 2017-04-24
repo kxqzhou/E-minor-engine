@@ -122,6 +122,7 @@ set (
       deps/glm/glm
       deps/glm/gtc
       deps/glm/gtx
+      deps/soil/src
     )
 
 include_directories(${INCLUDE_DIRS})
@@ -130,7 +131,7 @@ include_directories(${INCLUDE_DIRS})
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 # Link GLFW and GLEW to main executable
-target_link_libraries(${PROJECT_NAME} libglew_static glfw ${GLFW_LIBRARIES} )
+target_link_libraries(${PROJECT_NAME} libglew_static glfw ${GLFW_LIBRARIES} SOIL )
 
 # C++ Standard
 #add_definitions( -std=c++0x )
