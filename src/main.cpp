@@ -71,7 +71,7 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Setup and compile our shaders
-    Shader ourShader("res/shaders/transform.vs", "res/shaders/transform.frag");
+    Shader ourShader("../res/shaders/transform.vs", "../res/shaders/transform.frag");
 
     // Set up our vertex data (and buffer(s)) and attribute pointers
     GLfloat vertices[] = {
