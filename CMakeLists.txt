@@ -119,9 +119,9 @@ set (
       include
       deps/glfw-3.2.1/include/GLFW
       deps/glew-2.0.0/include/GL
-      deps/glm/glm
-      deps/glm/gtc
-      deps/glm/gtx
+      include/glm
+      include/glm/gtc
+      include/glm/gtx
       deps/soil/src
     )
 

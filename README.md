@@ -10,6 +10,7 @@ To run, follow these steps:<br />
 
 Compiling this project requires GLFW and GLEW, which require several dependencies. Below is a command for Linux machines to retrieve the necessary packages:<br />
 sudo apt-get install cmake xorg-dev libxmu-dev libxi-dev libgl-dev dos2unix git wget<br />
+You may also have to run a sudo make install in GLFW and GLEW's root directories to get the lib files.<br />
 
 Contributors: Kyle Zhou and Ricardo Herrera<br />
 Long live Patrick Star.
