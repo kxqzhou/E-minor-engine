@@ -9,8 +9,7 @@ uniform vec3 viewPos;
 uniform vec3 lightColor;
 uniform vec3 objectColor;
 
-void main()
-{
+void main(){
     // Ambient
     float ambientStrength = 1.1f;
     vec3 ambient = ambientStrength * lightColor;
