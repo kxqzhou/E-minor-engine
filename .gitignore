@@ -40,8 +40,13 @@ CMakeCache.txt
 CMakeFiles
 Makefile
 cmake_install.cmake
+cmake_uninstall.cmake
 install_manifest.txt
 cmake-build-debug
+
+# GLFW
+glfw_config.h
+glfw3.pc
 
 # Build Directories
 [Bb]uild/
