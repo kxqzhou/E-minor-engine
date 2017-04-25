@@ -32,6 +32,10 @@ void Do_Movement();
 // Camera
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
 bool keys[1024];
+
+glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+
+
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
@@ -73,6 +77,8 @@ int main() {
 
     // Setup and compile our shaders
     Shader ourShader("../res/shaders/transform.vs", "../res/shaders/transform.frag");
+    Shader lightingShader("../res/shaders/basic_lighting.vs", "../res/shaders/basic_lighting.frag");
+
 
     // Set up our vertex data (and buffer(s)) and attribute pointers
     GLfloat vertices[] = {
@@ -148,7 +154,23 @@ int main() {
     glEnableVertexAttribArray(2);
 
     glBindVertexArray(0); // Unbind VAO
-    
+    /*
+    float ambientStrength = 0.1f;
+    vec3 ambient = ambientStrength*lightColor;
+    vec3 result  = ambient*objectColor;
+    color = vec4(result, 1.0f);
+    */
+        // Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
+    GLuint lightVAO;
+    glGenVertexArrays(1, &lightVAO);
+    glBindVertexArray(lightVAO);
+    // We only need to bind to the VBO (to link it with glVertexAttribPointer), no need to fill it; the VBO's data already contains all we need.
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    // Set the vertex attributes (only position data for the lamp))
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0); // Note that we skip over the normal vectors
+    glEnableVertexAttribArray(0);
+    glBindVertexArray(0);
+
     // Game loop
     while(!glfwWindowShouldClose(window)) {
         // Set frame time
@@ -166,6 +188,16 @@ int main() {
 
         // Draw our first triangle
         ourShader.Use();
+
+        lightingShader.Use();
+        GLint objectColorLoc = glGetUniformLocation(lightingShader.Program, "objectColor");
+        GLint lightColorLoc  = glGetUniformLocation(lightingShader.Program, "lightColor");
+        GLint lightPosLoc    = glGetUniformLocation(lightingShader.Program, "lightPos");
+        GLint viewPosLoc     = glGetUniformLocation(lightingShader.Program, "viewPos");
+        glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+        glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f);
+        glUniform3f(lightPosLoc,    lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(viewPosLoc,     camera.Position.x, camera.Position.y, camera.Position.z);
         
         // Create camera transformation
         glm::mat4 view;
@@ -173,16 +205,21 @@ int main() {
         glm::mat4 projection;	
         projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight, 0.1f, 1000.0f);
         // Get the uniform locations
+        /*
         GLint modelLoc = glGetUniformLocation(ourShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
         GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
+        */
+        GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
+        GLint viewLoc  = glGetUniformLocation(lightingShader.Program,  "view");
+        GLint projLoc  = glGetUniformLocation(lightingShader.Program,  "projection");
         // Pass the matrices to the shader
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
         
         glBindVertexArray(VAO);
-        for(GLuint i = 0; i < 10; i++)
-        {
+
+        for(GLuint i = 0; i < 10; i++) {
             // Calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
             model = glm::translate(model, cubePositions[i]);
