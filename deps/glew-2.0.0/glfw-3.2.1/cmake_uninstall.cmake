@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "/Users/ricky/desktop/E-minor-engine/deps/glfw-3.2.1/install_manifest.txt")
-  message(FATAL_ERROR "Cannot find install manifest: \"/Users/ricky/desktop/E-minor-engine/deps/glfw-3.2.1/install_manifest.txt\"")
+if (NOT EXISTS "/Users/ricky/desktop/E-minor-engine/deps/glew-2.0.0/glfw-3.2.1/install_manifest.txt")
+  message(FATAL_ERROR "Cannot find install manifest: \"/Users/ricky/desktop/E-minor-engine/deps/glew-2.0.0/glfw-3.2.1/install_manifest.txt\"")
 endif()
 
-file(READ "/Users/ricky/desktop/E-minor-engine/deps/glfw-3.2.1/install_manifest.txt" files)
+file(READ "/Users/ricky/desktop/E-minor-engine/deps/glew-2.0.0/glfw-3.2.1/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})
