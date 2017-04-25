@@ -117,14 +117,10 @@ aux_source_directory(src SRC_LIST)
 set (
       INCLUDE_DIRS
       include
-      deps/glfw-3.2.1/include/GLFW
-      deps/glew-2.0.0/include/GL
-      include/glm
-      include/glm/gtc
-      include/glm/gtx
+      deps/glfw-3.2.1/include
+      deps/glew-2.0.0/include
       deps/soil/src
       deps/freetype-2.7.1/include
-      deps/freetype-2.7.1/include/freetype
     )
 
 include_directories(${INCLUDE_DIRS})
