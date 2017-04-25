@@ -15,7 +15,10 @@
         <br>In the first week, we wanted to be able to set up the foundation for our engine. We have an OpenGL base that is at minimum able to render at least simple primitives on the screen along with a source build. We also did research on OpenGL based video game engines and real-time lighting / camera effects. We also had a lot of time going into preperation for the miderm. 
         <br> - set up the dependencies: GLEW, GLFW, GLF, and SOIL. 
         <br> - basic window interface, with 2d primitives. 
+	</p>
 	<p>
+		<br>We unfortunately had a lot of trouble creating the initial setup, which delayed our efforts in making progress on this project. We began the project using the CGL library that was included in all of the previous 184 projects, but eventually we decided it would not give us the leverage we needed to accomplish our goals. Thus, we decided to build GLFW and other libraries such as GLM ourselves. However, we struggled a lot with trying to compile the project source. In particular, we struggled to figure out how to create a working cmake configuration that would compile all of the required dependencies and link all the libraries correctly. Initially, we tried modifying portions of the CMakeLists from the 184 projects, but we were unable to figure out how to address problems that occurred such as claims of missing libraries despite having their source installed. These issues were resolved by using pieces from a simpler CMakeList that we found on Github. However, we once again ran into a delay where the build would not compile across both Linux and OSX. We resolved that by re-cmaking GLFW in the dependency folder on each platform before cmaking the overall project build.
+	</p>
 	April 16 - April 22
     <br>We figured out how to set up a movable camera, and basic primitives in a 3D space. We have yet to use SOIL. We hav been considering using FreeType for text rendering. 
     <br> - getting a basic shader
