@@ -150,8 +150,7 @@ int main() {
     glBindVertexArray(0); // Unbind VAO
     
     // Game loop
-    while(!glfwWindowShouldClose(window))
-    {
+    while(!glfwWindowShouldClose(window)) {
         // Set frame time
         GLfloat currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
@@ -162,7 +161,7 @@ int main() {
         Do_Movement();
 
         // Clear the colorbuffer
-        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClearColor(0.922f, 0.72f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // Draw our first triangle
@@ -205,8 +204,7 @@ int main() {
 }
 
 // Moves/alters the camera positions based on user input
-void Do_Movement()
-{
+void Do_Movement() {
     // Camera controls
     if(keys[GLFW_KEY_W])
         camera.ProcessKeyboard(FORWARD, deltaTime);
@@ -219,8 +217,7 @@ void Do_Movement()
 }
 
 // Is called whenever a key is pressed/released via GLFW
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
+void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
     //cout << key << endl;
     if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, GL_TRUE);
@@ -233,8 +230,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     }
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
+void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     if(firstMouse)
     {
         lastX = xpos;
@@ -252,8 +248,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 }	
 
 
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera.ProcessMouseScroll(yoffset);
 }
 
