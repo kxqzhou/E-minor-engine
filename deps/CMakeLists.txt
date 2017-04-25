@@ -7,4 +7,5 @@ find_package( Threads REQUIRED )
 add_subdirectory(glew-2.0.0)
 add_subdirectory(glfw-3.2.1)
 add_subdirectory(soil)
+add_subdirectory(freetype-2.7.1)
 

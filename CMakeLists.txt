@@ -123,6 +123,8 @@ set (
       include/glm/gtc
       include/glm/gtx
       deps/soil/src
+      deps/freetype-2.7.1/include
+      deps/freetype-2.7.1/include/freetype
     )
 
 include_directories(${INCLUDE_DIRS})
