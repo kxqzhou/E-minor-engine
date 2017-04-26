@@ -30,10 +30,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void Do_Movement();
 
 // Camera
-Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+Camera camera(glm::vec3(0.0f, 0.0f, 10.0f));
 bool keys[1024];
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 1.0f, 2.0f);
 
 
 GLfloat lastX = 400, lastY = 300;
@@ -88,21 +88,21 @@ int main() {
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-
+        
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
          0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
          0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
          0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
         -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-
+        
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
         -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-
+        
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
          0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
          0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
@@ -123,18 +123,31 @@ int main() {
          0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+        
+        
     };
     glm::vec3 cubePositions[] = {
-        glm::vec3(0.0f, 0.0f, 0.0f), 
-        glm::vec3(2.0f, 5.0f, -15.0f), 
-        glm::vec3(-1.5f, -2.2f, -2.5f),  
-        glm::vec3(-3.8f, -2.0f, -12.3f),  
-        glm::vec3(2.4f, -0.4f, -3.5f),  
-        glm::vec3(-1.7f, 3.0f, -7.5f),  
-        glm::vec3(1.3f, -2.0f, -2.5f),  
-        glm::vec3(1.5f, 2.0f, -2.5f), 
-        glm::vec3(1.5f, 0.2f, -1.5f), 
-        glm::vec3(-1.3f, 1.0f, -1.5f)  
+        glm::vec3(0.0f, 0.0f, -51.5f),
+        glm::vec3(0.0f, -1.0f, -48.5f),
+        glm::vec3(0.0f, -2.0f, -45.5f),
+        glm::vec3(0.0f, -4.0f, -42.5f),
+        glm::vec3(0.0f, -2.0f, -39.5f),         
+        glm::vec3(0.0f, -1.0f, -36.5f),         
+        glm::vec3(0.0f, 0.0f, -33.5f),         
+        glm::vec3(0.0f, 1.0f, -30.5f), 
+        glm::vec3(0.0f, 2.0f, -27.5f),  
+        glm::vec3(0.0f, 4.0f, -24.3f),  
+        glm::vec3(0.0f, 2.0f, -21.5f),  
+        glm::vec3(0.0f, 1.0f, -18.5f),  
+        glm::vec3(0.0f, 0.0f, -15.5f),  
+        glm::vec3(0.0f, -1.0f, -12.5f), 
+        glm::vec3(0.0f, -2.0f, -9.5f), 
+        glm::vec3(0.0f, -4.0f, -6.5f), 
+        glm::vec3(0.0f, -2.0f, -3.5f), 
+        glm::vec3(0.0f, -1.0f, -0.5f),
+        glm::vec3(0.0f, 0.0f, 2.5f) 
+
+        
     };
 
     GLuint VBO, VAO;
@@ -219,12 +232,12 @@ int main() {
         
         glBindVertexArray(VAO);
 
-        for(GLuint i = 0; i < 10; i++) {
+        for(GLuint i = 0; i < 18; i++) {
             // Calculate the model matrix for each object and pass it to shader before drawing
             glm::mat4 model;
             model = glm::translate(model, cubePositions[i]);
-            GLfloat angle = 20.0f * i; 
-            model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
+            GLfloat angle = 1.0f * 1; 
+            model = glm::rotate(model, angle, glm::vec3(1.0f, 1.0f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
             glDrawArrays(GL_TRIANGLES, 0, 36);			
