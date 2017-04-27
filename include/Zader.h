@@ -1,7 +1,7 @@
 
 
-#ifndef SHADER_H
-#define SHADER_H
+#ifndef ZADER_H
+#define ZADER_H
 
 #include <string>
 #include <fstream>
