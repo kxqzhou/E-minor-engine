@@ -1,7 +1,9 @@
 
 #include "engine.h"
-#include "resource_manager.h"
+//#include "resource_manager.h"
+//#include "shader.h"
 #include "shader.h"
+
 
 
 Engine::Engine( GLuint w, GLuint h ) {
