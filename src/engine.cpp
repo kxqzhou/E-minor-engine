@@ -1,6 +1,8 @@
 
 #include "engine.h"
 #include "resource_manager.h"
+#include "shader.h"
+
 
 Engine::Engine( GLuint w, GLuint h ) {
 	width = w;
