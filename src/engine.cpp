@@ -1,8 +1,10 @@
 
 #include "engine.h"
+#include "resource_manager.h"
 
 Engine::Engine( GLuint w, GLuint h ) {
-	
+	width = w;
+	height = h;
 }
 
 Engine::~Engine() {

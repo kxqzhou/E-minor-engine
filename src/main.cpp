@@ -1,5 +1,5 @@
 
-
+/* fafafa
 
 // Std. Includes
 #include <string>
@@ -160,6 +160,9 @@ int main() {
     vec3 result  = ambient*objectColor;
     color = vec4(result, 1.0f);
     */
+
+    /* fafafa
+
         // Then, we set the light's VAO (VBO stays the same. After all, the vertices are the same for the light object (also a 3D cube))
     GLuint lightVAO;
     glGenVertexArrays(1, &lightVAO);
@@ -202,7 +205,7 @@ int main() {
         // Create camera transformation
         glm::mat4 view;
         view = camera.GetViewMatrix();
-        glm::mat4 projection;	
+        glm::mat4 projection;   
         projection = glm::perspective(camera.Zoom, (float)screenWidth/(float)screenHeight, 0.1f, 1000.0f);
         // Get the uniform locations
         /*
@@ -210,6 +213,8 @@ int main() {
         GLint viewLoc = glGetUniformLocation(ourShader.Program, "view");
         GLint projLoc = glGetUniformLocation(ourShader.Program, "projection");
         */
+
+/* fafafa
         GLint modelLoc = glGetUniformLocation(lightingShader.Program, "model");
         GLint viewLoc  = glGetUniformLocation(lightingShader.Program,  "view");
         GLint projLoc  = glGetUniformLocation(lightingShader.Program,  "projection");
@@ -227,7 +232,7 @@ int main() {
             model = glm::rotate(model, angle, glm::vec3(1.0f, 0.3f, 0.5f));
             glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 
-            glDrawArrays(GL_TRIANGLES, 0, 36);			
+            glDrawArrays(GL_TRIANGLES, 0, 36);          
         }
         glBindVertexArray(0);
         // Swap the buffers
@@ -263,7 +268,7 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
         if(action == GLFW_PRESS)
             keys[key] = true;
         else if(action == GLFW_RELEASE)
-            keys[key] = false;	
+            keys[key] = false;  
     }
 }
 
@@ -282,7 +287,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
     lastY = ypos;
 
     camera.ProcessMouseMovement(xoffset, yoffset);
-}	
+}   
 
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
@@ -300,43 +305,43 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
 #include <iostream>
 
 int main (int argc, char* argv[]) {
-	glfwInit();
+    glfwInit();
 
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
-	glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
-	glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
-	glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MAJOR, 3 );
+    glfwWindowHint( GLFW_CONTEXT_VERSION_MINOR, 3 );
+    glfwWindowHint( GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE );
+    glfwWindowHint( GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE );
 
-	GLFWwindow* window = glfwCreateWindow( 800, 600, "E-Minor Engine", NULL, NULL );
-	if (!window) {
-		std::cout << "Failed to create GLFW window\n";
-		glfwTerminate();
-		return -1;
-	}
-	glfwMakeContextCurrent( window );
+    GLFWwindow* window = glfwCreateWindow( 800, 600, "E-Minor Engine", NULL, NULL );
+    if (!window) {
+        std::cout << "Failed to create GLFW window\n";
+        glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent( window );
 
-	glewExperimental = GL_TRUE;
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed to initialize GLEW\n";
-		return -1;
-	}
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        std::cout << "Failed to initialize GLEW\n";
+        return -1;
+    }
 
-	int width, height;
-	glfwGetFramebufferSize( window, &width, &height );
+    int width, height;
+    glfwGetFramebufferSize( window, &width, &height );
 
-	glViewport( 0, 0, width, height );
+    glViewport( 0, 0, width, height );
 
-	while ( !glfwWindowShouldClose( window ) ) {
-		glfwPollEvents();
+    while ( !glfwWindowShouldClose( window ) ) {
+        glfwPollEvents();
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
+        glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-		glfwSwapBuffers( window );
-	}
+        glfwSwapBuffers( window );
+    }
 
-	glfwTerminate();
-	return 0;
+    glfwTerminate();
+    return 0;
 }
 
 */
