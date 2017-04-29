@@ -6,11 +6,12 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include "camera.h"
+#include "renderer.h"
+
 class Engine {
 public:
-	GLuint width, height;
-
-	Engine( GLuint w, GLuint h );
+	Engine( GLuint w, GLuint h, Camera* camera );
 	~Engine();
 
 	void init();
@@ -19,6 +20,8 @@ public:
 	void update( GLfloat dt );
 	
 	void render();
+private:
+	Renderer* renderer;
 };
 
 
