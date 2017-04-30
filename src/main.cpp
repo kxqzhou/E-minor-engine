@@ -22,7 +22,6 @@ Camera* camera;
 GLfloat lastX = 400, lastY = 300;
 bool firstMouse = true;
 
-
 void key_callback( GLFWwindow* window, int key, int scancode, int action, int mode ) {
 	// close application when user presses escape
 	if ( glfwGetKey( window, GLFW_KEY_ESCAPE ) == GLFW_PRESS ) {
@@ -62,6 +61,12 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
 
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset) {
     camera->ProcessMouseScroll(yoffset);
+}
+
+
+// generation functions
+vec3 wave( int x ) {
+    return vec3( x, 0.0f, 0.0f );
 }
 
 
@@ -110,7 +115,7 @@ int main( int argc, char* argv[] ) {
     // init engine
     camera = new Camera( vec3(0.0f, 0.0f, 3.0f) );
     Engine engine( screen_width, screen_height, camera );
-    engine.init();
+    engine.init( GenFunc::vert );
 
     // delta time vars
     GLfloat dt = 0.0f;
