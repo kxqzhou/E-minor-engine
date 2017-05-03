@@ -10,6 +10,9 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <ft2build.h>
+#include FT_FREETYPE_H
+
 #include <vector>
 
 #include "camera.h"
@@ -37,7 +40,12 @@ private:
 	std::vector<glm::vec3> cubePositions;
 	glm::vec3 lightPos;
 
+	FT_Library ft;
+	FT_Face face;
+
 	void branch( int seed, glm::vec3 pos, glm::vec3 dir );
+
+	void renderText();
 };
 
 

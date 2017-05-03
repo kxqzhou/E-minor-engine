@@ -114,6 +114,11 @@ int main( int argc, char* argv[] ) {
     glViewport( 0, 0, screen_width, screen_height );
     glEnable( GL_DEPTH_TEST );
     glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+    // text config
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // avoid seg faults..? feels dangerous
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);  
 
     // init engine
     camera = new Camera( vec3(0.0f, 0.0f, 3.0f) );

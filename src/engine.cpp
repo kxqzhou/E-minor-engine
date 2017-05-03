@@ -3,6 +3,7 @@
 #include "resource_manager.h"
 
 #include <cstdio>
+#include <string>
 
 using namespace glm;
 
@@ -15,7 +16,8 @@ Engine::Engine( GLuint w, GLuint h, Camera* cam, GLuint cc ) {
 }
 
 Engine::~Engine() {
-	
+	FT_Done_Face(face);
+    FT_Done_FreeType(ft);
 }
 
 void Engine::init( GenFunc f ) {
@@ -86,6 +88,24 @@ void Engine::init( GenFunc f ) {
 
     ResourceManager::LoadShader( "../res/shaders/basic_lighting.vs", 
     							 "../res/shaders/basic_lighting.frag", NULL, "lighting" );
+
+
+    // freetype stuff
+    if (FT_Init_FreeType(&ft)) {
+        printf("Error::FreeType: Could not initialize FreeType library\n");
+    }
+
+    if (FT_New_Face(ft, "../res/fonts/FreeSans.ttf", 0, &face)) {
+        printf("Error::FreeType: Failed to load font\n");
+    }
+
+    FT_Set_Pixel_Sizes(face, 0, 48); 
+
+    if (FT_Load_Char(face, 'E', FT_LOAD_RENDER))
+        printf("Error::FreeType: Failed to load glyph\n");
+
+    ResourceManager::LoadShader( "../res/shaders/tex.vs", 
+                                 "../res/shaders/tex.frag", NULL, "tex" );
 }
 
 vec3 linear(int i) {
@@ -210,5 +230,131 @@ void Engine::render() {
 	    }
 	    glBindVertexArray(0);
     }
+
+    renderText();
+}
+
+void my_draw_bitmap( FT_Bitmap* bm, int top_left_x, int top_left_y ) {
+    GLfloat xpos = top_left_x;
+    GLfloat ypos = top_left_y;
+
+    GLfloat w = bm->width;
+    GLfloat h = bm->rows;
+
+    // Update VBO for each character
+    GLfloat vertices[6][4] = {
+        { xpos,     ypos + h,   0.0, 0.0 },            
+        { xpos,     ypos,       0.0, 1.0 },
+        { xpos + w, ypos,       1.0, 1.0 },
+
+        { xpos,     ypos + h,   0.0, 0.0 },
+        { xpos + w, ypos,       1.0, 1.0 },
+        { xpos + w, ypos + h,   1.0, 0.0 }           
+    };
+
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RED,
+        bm->width,
+        bm->rows,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        bm->buffer
+    );
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // render
+    Shader tex = ResourceManager::GetShader("tex");
+    mat4 projection = ortho(0.0f, 800.0f, 0.0f, 600.0f);
+    tex.Use();
+    glUniformMatrix4fv(glGetUniformLocation(tex.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glUniform3f(glGetUniformLocation(tex.ID, "textColor"), 1.0f, 1.0f, 1.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+
+    // Render glyph texture over quad
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Update content of VBO memory
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Render quad
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+void Engine::renderText() {
+    FT_GlyphSlot  slot = face->glyph;  /* a small shortcut */
+    FT_UInt       glyph_index;
+    FT_Bool       use_kerning;
+    FT_UInt       previous;
+    int           pen_x, pen_y, n;
+
+    pen_x = width / 2;
+    pen_y = height / 8;
+
+    use_kerning = FT_HAS_KERNING( face );
+    previous    = 0;
+
+    // change to mapping later
+    std::string text = "E-Minor";
+
+    for ( n = 0; n < text.size(); n++ ) {
+      /* convert character code to glyph index */
+      glyph_index = FT_Get_Char_Index( face, text[n] );
+
+      /* retrieve kerning distance and move pen position */
+      if ( use_kerning && previous && glyph_index )
+      {
+        FT_Vector  delta;
+
+
+        FT_Get_Kerning( face, previous, glyph_index,
+                        FT_KERNING_DEFAULT, &delta );
+
+        pen_x += delta.x >> 6;
+      }
+
+      /* load glyph image into the slot (erase previous one) */
+      if ( FT_Load_Glyph( face, glyph_index, FT_LOAD_RENDER ) )
+        continue;  /* ignore errors */
+
+      /* now draw to our target surface */
+      my_draw_bitmap( &slot->bitmap,
+                      pen_x + slot->bitmap_left,
+                      pen_y - slot->bitmap_top );
+
+      /* increment pen position */
+      pen_x += slot->advance.x >> 6;
+
+      /* record current glyph index */
+      previous = glyph_index;
+    }
+
+    glBindVertexArray(0);
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
