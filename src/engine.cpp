@@ -89,6 +89,8 @@ void Engine::init( GenFunc f ) {
     ResourceManager::LoadShader( "../res/shaders/basic_lighting.vs", 
     							 "../res/shaders/basic_lighting.frag", NULL, "lighting" );
 
+    ResourceManager::LoadShader( "../res/shaders/vignette.vs", 
+                                 "../res/shaders/vignette.frag", NULL, "vignette" );
 
     // freetype stuff
     if (FT_Init_FreeType(&ft)) {
@@ -194,42 +196,43 @@ void Engine::render() {
     mat4 projection;   
     projection = perspective(camera->Zoom, (float)width/(float)height, 0.1f, 1000.0f);
 
-    for (auto &p : ResourceManager::Shaders) {
-    	Shader shader = p.second;
+    // lighting
+    Shader shader = ResourceManager::GetShader("lighting");
+    shader.Use();
+    GLint objectColorLoc = glGetUniformLocation(shader.ID, "objectColor");
+    GLint lightColorLoc  = glGetUniformLocation(shader.ID, "lightColor");
+    GLint lightPosLoc    = glGetUniformLocation(shader.ID, "lightPos");
+    GLint viewPosLoc     = glGetUniformLocation(shader.ID, "viewPos");
+    glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
+    glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f);
+    glUniform3f(lightPosLoc,    lightPos.x, lightPos.y, lightPos.z);
+    glUniform3f(viewPosLoc,     camera->Position.x, camera->Position.y, camera->Position.z);
+    
+    
+    // Get the uniform locations
+    GLint modelLoc = glGetUniformLocation(shader.ID, "model");
+    GLint viewLoc  = glGetUniformLocation(shader.ID,  "view");
+    GLint projLoc  = glGetUniformLocation(shader.ID,  "projection");
+    // Pass the matrices to the shader
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
+    glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(projection));
+    
+    glBindVertexArray(VAO);
 
-    	shader.Use();
-	    GLint objectColorLoc = glGetUniformLocation(shader.ID, "objectColor");
-	    GLint lightColorLoc  = glGetUniformLocation(shader.ID, "lightColor");
-	    GLint lightPosLoc    = glGetUniformLocation(shader.ID, "lightPos");
-	    GLint viewPosLoc     = glGetUniformLocation(shader.ID, "viewPos");
-	    glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
-	    glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f);
-	    glUniform3f(lightPosLoc,    lightPos.x, lightPos.y, lightPos.z);
-	    glUniform3f(viewPosLoc,     camera->Position.x, camera->Position.y, camera->Position.z);
-	    
-	    
-	    // Get the uniform locations
-	    GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-	    GLint viewLoc  = glGetUniformLocation(shader.ID,  "view");
-	    GLint projLoc  = glGetUniformLocation(shader.ID,  "projection");
-	    // Pass the matrices to the shader
-	    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
-	    glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(projection));
-	    
-	    glBindVertexArray(VAO);
+    for(GLuint i = 0; i < cubePositions.size(); i++) {
+        // Calculate the model matrix for each object and pass it to shader before drawing
+        mat4 model;
+        model = translate(model, cubePositions[i]);
+        GLfloat angle = 20.0f * i; 
+        model = rotate(model, angle, vec3(1.0f, 0.3f, 0.5f));
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
 
-	    for(GLuint i = 0; i < cubePositions.size(); i++) {
-	        // Calculate the model matrix for each object and pass it to shader before drawing
-	        mat4 model;
-	        model = translate(model, cubePositions[i]);
-	        GLfloat angle = 20.0f * i; 
-	        model = rotate(model, angle, vec3(1.0f, 0.3f, 0.5f));
-	        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
-
-	        glDrawArrays(GL_TRIANGLES, 0, 36);          
-	    }
-	    glBindVertexArray(0);
+        glDrawArrays(GL_TRIANGLES, 0, 36);          
     }
+    glBindVertexArray(0);
+
+    // vignette
+    shader = ResourceManager::GetShader("vignette");
 
     renderText();
 }
