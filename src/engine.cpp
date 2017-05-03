@@ -154,7 +154,7 @@ void Engine::place_cubes( GenFunc f ) {
 
         for (int i = 0; i < cube_count; i++) {
             vec3 pos( rand() / (float)RAND_MAX * 50 - 25, 0, rand() / (float)RAND_MAX * 50 - 25 );
-            for (int j = 1; j < cube_count; j++) {
+            for (int j = 1; j < rand() / (float)RAND_MAX * (cube_count / 2) + (cube_count / 2); j++) {
                 cubePositions.push_back( vec3(pos[0], j, pos[2]) );
             }
         }
@@ -165,6 +165,16 @@ void Engine::place_cubes( GenFunc f ) {
                 branch( cube_count, cubePositions[i * cube_count + j], normalize(dir) );
             }
         }
+
+        /*
+        for (int i = 0; i < cube_count; i++) {
+            cubePositions.push_back( vec3( 0, i, 0 ) );
+        }
+        for (int i = 1; i < cube_count; i++) {
+            vec3 dir( rand() / (float)RAND_MAX * 2 - 1, 0, rand() / (float)RAND_MAX * 2 - 1);
+            branch( cube_count, cubePositions[i], normalize(dir) );
+        } 
+        */       
     }
 
     /*
@@ -211,14 +221,14 @@ void Engine::render() {
     
     // Get the uniform locations
     GLint modelLoc = glGetUniformLocation(shader.ID, "model");
-    GLint viewLoc  = glGetUniformLocation(shader.ID,  "view");
-    GLint projLoc  = glGetUniformLocation(shader.ID,  "projection");
+    GLint viewLoc  = glGetUniformLocation(shader.ID, "view");
+    GLint projLoc  = glGetUniformLocation(shader.ID, "projection");
     // Pass the matrices to the shader
     glUniformMatrix4fv(viewLoc, 1, GL_FALSE, value_ptr(view));
     glUniformMatrix4fv(projLoc, 1, GL_FALSE, value_ptr(projection));
     
     glBindVertexArray(VAO);
-
+    #pragma omp parallel for
     for(GLuint i = 0; i < cubePositions.size(); i++) {
         // Calculate the model matrix for each object and pass it to shader before drawing
         mat4 model;
@@ -227,86 +237,25 @@ void Engine::render() {
         model = rotate(model, angle, vec3(1.0f, 0.3f, 0.5f));
         glUniformMatrix4fv(modelLoc, 1, GL_FALSE, value_ptr(model));
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);          
+        glDrawArrays(GL_TRIANGLES, 0, 36);
     }
     glBindVertexArray(0);
 
     // vignette
     shader = ResourceManager::GetShader("vignette");
+    shader.Use();
+    projection = ortho(0.0f, (float)width, 0.0f, (float)height);
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+    glUniform2i(glGetUniformLocation(shader.ID, "resolution"), width, height);
+    glUniform4i(glGetUniformLocation(shader.ID, "Color"), 0.5f, 0.5f, 0.5f, 1.0f);
 
-    renderText();
-}
-
-void my_draw_bitmap( FT_Bitmap* bm, int top_left_x, int top_left_y ) {
-    GLfloat xpos = top_left_x;
-    GLfloat ypos = top_left_y;
-
-    GLfloat w = bm->width;
-    GLfloat h = bm->rows;
-
-    // Update VBO for each character
-    GLfloat vertices[6][4] = {
-        { xpos,     ypos + h,   0.0, 0.0 },            
-        { xpos,     ypos,       0.0, 1.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
-
-        { xpos,     ypos + h,   0.0, 0.0 },
-        { xpos + w, ypos,       1.0, 1.0 },
-        { xpos + w, ypos + h,   1.0, 0.0 }           
-    };
-
-    // Generate texture
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    glTexImage2D(
-        GL_TEXTURE_2D,
-        0,
-        GL_RED,
-        bm->width,
-        bm->rows,
-        0,
-        GL_RED,
-        GL_UNSIGNED_BYTE,
-        bm->buffer
-    );
-    // Set texture options
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    // render
-    Shader tex = ResourceManager::GetShader("tex");
-    mat4 projection = ortho(0.0f, 800.0f, 0.0f, 600.0f);
-    tex.Use();
-    glUniformMatrix4fv(glGetUniformLocation(tex.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
-
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
     glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    for(GLuint i = 0; i < cubePositions.size(); i++) {
+        glDrawArrays(GL_TRIANGLES, 0, 36);   
+    }
     glBindVertexArray(0);
 
-    glUniform3f(glGetUniformLocation(tex.ID, "textColor"), 1.0f, 1.0f, 1.0f);
-    glActiveTexture(GL_TEXTURE0);
-    glBindVertexArray(VAO);
-
-    // Render glyph texture over quad
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // Update content of VBO memory
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    // Render quad
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    renderText();
 }
 
 void Engine::renderText() {
@@ -359,5 +308,77 @@ void Engine::renderText() {
 
     glBindVertexArray(0);
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Engine::my_draw_bitmap( FT_Bitmap* bm, int top_left_x, int top_left_y ) {
+    GLfloat xpos = top_left_x;
+    GLfloat ypos = top_left_y;
+
+    GLfloat w = bm->width;
+    GLfloat h = bm->rows;
+
+    // Update VBO for each character
+    GLfloat vertices[6][4] = {
+        { xpos,     ypos + h,   0.0, 0.0 },            
+        { xpos,     ypos,       0.0, 1.0 },
+        { xpos + w, ypos,       1.0, 1.0 },
+
+        { xpos,     ypos + h,   0.0, 0.0 },
+        { xpos + w, ypos,       1.0, 1.0 },
+        { xpos + w, ypos + h,   1.0, 0.0 }           
+    };
+
+    // Generate texture
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RED,
+        bm->width,
+        bm->rows,
+        0,
+        GL_RED,
+        GL_UNSIGNED_BYTE,
+        bm->buffer
+    );
+    // Set texture options
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    // render
+    Shader tex = ResourceManager::GetShader("tex");
+    mat4 projection = ortho(0.0f, (float)width, 0.0f, (float)height);
+    tex.Use();
+    glUniformMatrix4fv(glGetUniformLocation(tex.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(GLfloat), 0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+
+    glUniform3f(glGetUniformLocation(tex.ID, "textColor"), 1.0f, 1.0f, 1.0f);
+    glActiveTexture(GL_TEXTURE0);
+    glBindVertexArray(VAO);
+
+    // Render glyph texture over quad
+    glBindTexture(GL_TEXTURE_2D, texture);
+    // Update content of VBO memory
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices); // Be sure to use glBufferSubData and not glBufferData
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    // Render quad
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 

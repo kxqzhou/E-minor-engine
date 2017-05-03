@@ -45,6 +45,7 @@ private:
 
 	void branch( int seed, glm::vec3 pos, glm::vec3 dir );
 
+	void my_draw_bitmap( FT_Bitmap* bm, int top_left_x, int top_left_y );
 	void renderText();
 };
 
