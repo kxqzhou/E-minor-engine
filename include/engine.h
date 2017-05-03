@@ -14,13 +14,13 @@
 
 #include "camera.h"
 
-enum class GenFunc { line, vert };
+enum class GenFunc { line, vert, tree };
 
 class Engine {
 public:
 	GLuint width, height, cube_count;
 
-	Engine( GLuint w, GLuint h, Camera* cam, GLuint cc=10 );
+	Engine( GLuint w, GLuint h, Camera* cam, GLuint cc=16 );
 	~Engine();
 
 	void init( GenFunc f );
@@ -36,6 +36,8 @@ private:
 	GLuint VAO;
 	std::vector<glm::vec3> cubePositions;
 	glm::vec3 lightPos;
+
+	void branch( int seed, glm::vec3 pos, glm::vec3 dir );
 };
 
 

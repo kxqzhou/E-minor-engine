@@ -1,7 +1,8 @@
 
 #include "engine.h"
 #include "resource_manager.h"
-#include "cmath"
+
+#include <cstdio>
 
 using namespace glm;
 
@@ -95,8 +96,56 @@ vec3 vertical(int i) {
 	return vec3(0.0f, i, 0.0f);
 }
 
+void Engine::branch( int seed, vec3 pos, vec3 dir ) {
+    if (seed == 0) {
+        return;
+    }
+
+    // roulette terminate
+    if ( rand() / (float)RAND_MAX > 1.0 / seed ) {
+        vec3 next_pos = dir + pos;
+
+        cubePositions.push_back( next_pos );
+
+        // calc vec orthagonal to current
+        float x = rand() / (float)RAND_MAX * 2 - 1;
+        float y = rand() / (float)RAND_MAX * 2 - 1;
+        float z = (dir[0] * x + dir[1] * y) / dir[2];
+        branch( seed / 4, next_pos, normalize( vec3(x, y, z) ) );
+
+        branch( seed / 2, next_pos, dir );
+    }
+}
+
 void Engine::place_cubes( GenFunc f ) {
 	vec3 (*gen_func)(int);
+
+    if (f == GenFunc::line || f == GenFunc::vert) {
+        gen_func = (f == GenFunc::line) ? linear : vertical;
+
+        for (int i = 0; i < cube_count; i++) {
+            cubePositions.push_back( gen_func(i) );
+        }
+    }
+    else if (f == GenFunc::tree) {
+        srand( time(NULL) );
+
+        for (int i = 0; i < cube_count; i++) {
+            vec3 pos( rand() / (float)RAND_MAX * 50 - 25, 0, rand() / (float)RAND_MAX * 50 - 25 );
+            for (int j = 1; j < cube_count; j++) {
+                cubePositions.push_back( vec3(pos[0], j, pos[2]) );
+            }
+        }
+
+        for (int i = 0; i < cube_count; i++) {
+            vec3 dir( rand() / (float)RAND_MAX * 2 - 1, 0, rand() / (float)RAND_MAX * 2 - 1);
+            for (int j = 1; j < cube_count; j++) {
+                branch( cube_count, cubePositions[i * cube_count + j], normalize(dir) );
+            }
+        }
+    }
+
+    /*
 	switch( f ) {
 		case GenFunc::line :
 			gen_func = linear;
@@ -105,10 +154,7 @@ void Engine::place_cubes( GenFunc f ) {
 			gen_func = vertical;
 			break;
 	}
-
-	for (int i = 0; i < cube_count; i++) {
-		cubePositions.push_back( gen_func(i) );
-	}
+    */
 }
 
 void Engine::handle_input( GLfloat dt ) {

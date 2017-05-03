@@ -40,6 +40,10 @@ void move_camera( GLFWwindow* window, GLfloat dt ) {
         camera->ProcessKeyboard(LEFT, dt);
     if( glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS )
         camera->ProcessKeyboard(RIGHT, dt);
+    if ( glfwGetKey( window, GLFW_KEY_Q ) == GLFW_PRESS ) 
+        camera->ProcessKeyboard(UP, dt);
+    if ( glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS ) 
+        camera->ProcessKeyboard(DOWN, dt);
 }
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos) {
@@ -114,7 +118,7 @@ int main( int argc, char* argv[] ) {
     // init engine
     camera = new Camera( vec3(0.0f, 0.0f, 3.0f) );
     Engine engine( screen_width, screen_height, camera );
-    engine.init( GenFunc::vert );
+    engine.init( GenFunc::tree );
 
     // delta time vars
     GLfloat dt = 0.0f;
