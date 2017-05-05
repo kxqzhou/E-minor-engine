@@ -8,7 +8,7 @@ in vec4 vColor;
 in vec2 vTexCoord;
 
 //RADIUS of our vignette, where 0.5 results in a circle fitting the screen
-const float RADIUS = 0.5;
+const float RADIUS = 0.75;
 
 //softness of our vignette, between 0.0 and 1.0
 const float SOFTNESS = 0.2;
