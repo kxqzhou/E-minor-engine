@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-<style>  
+<style>
     div.padded {  
       padding-top: 0px;  
       padding-right: 100px;  
@@ -21,29 +21,49 @@
 
     <div class="padded">
 
-    <h2 align="middle">Abstract</h2>
+    <h2 align="padding-left">Abstract</h2>
 
-        <p>For our CS184 final project we decided to try implementing a simple game engine. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular we wanted to try implementing light effects such as god rays and vignetting effects.</p>
+        <p>For our CS184 final project we decided to try implementing a simple game engine. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular we wanted to try implementing light effects such as god rays and vignetting effects. Although our initial goal was quite optimistic in its scope, we were able to create a functional game with simple gameplay and features such as procedurally generation, glowing lights, and camera tracking.</p>
 
-    <h2 align="middle">Technical Approach and Implementation</h2>
+    <h2 align="padding-left">Technical Approach and Implementation</h2>
         
+        <p>The bulk of this project was done using OpenGL and several supporting frameworks. We used GLFW for windows and context creation as well as keyboard input, GLM for mathematical operations such as vectors and matrixes, ASSIMP to load models, SOIL to load textures, and FreeType for text rendering. The LearnOpenGL tutorials were a significant resource in accomplishing our objectives.</p>
+
+        <h3>Camera</h3>
+
+        <h3>Gameplay</h3>
+
+        <h3>Lighting</h3>
+
+        <h3>Text</h3>
+
+        <h3>Procedural Generation</h3>
+
         <p></p>
 
-    <h2 align="middle">Results</h2>
+    <h2 align="padding-left">Results</h2>
 
-        <p></p>
+        <p>Unfortunately, due to limitations on our time, we were not able to add as many features as we would have liked. However, this project has taught us a lot about low-level graphics programming and we have each gained a massive appreciation for the technical prowess and effort that is required for game engine development. We hope that we can continue to extend and improve upon this project in the future.</p>
+
+    <h2 align="padding-left">References</h2>
+
+        <a href="https://www.learnopengl.com/">Learn OpenGL</a>
+        <br>
+        <a href="https://github.com/mattdesl/lwjgl-basics/wiki/ShaderLesson3">Vignette Shaders</a>
+        <br>
+        <a href="https://www.freetype.org/freetype2/docs/tutorial/">FreeType Tutorial</a>
+        <br>
 
     <br>
 
-    <h2 align="middle">References</h2>
+    <h2 align="padding-left">Contributions</h2>
 
-        <p></p>
+    	<h3>Ricky:</h3>
+        <p>Implemented all gameplay components, texture mapping, and basic lighting. Researched OpenGL areas and created presentation slides and video footage.</p>
 
-    <br>
-
-    <h2 align="middle">Contributions</h2>
-
-        <p></p>
+        <h3>Kyle:</h3>
+        <p>Refactored OpenGL project framework into separate files based on functionality. Created procedural generation code and implemented vignette shaders.</p>
+        <br>
 
     <br>
 </div>
