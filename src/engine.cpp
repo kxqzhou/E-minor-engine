@@ -11,15 +11,21 @@ Engine::Engine( int w, int h, int cc ) {
 	width = w;
 	height = h;
 	cube_count = cc;
+
+    place_cubes( GenFunc::tree );
 }
 
 void Engine::init() {
-	camera->MovementSpeed = 0.3;
+	camera->MovementSpeed = 10;
 
 	loc_m = vec3(0.0f, 0.0f, 0.0f);
 
 	waver = 1.1f;
     change = 0.01f;
+
+    GLfloat light_diffuse[] = { 1.0, 1.0, 1.0, 1.0 };
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightf(GL_LIGHT0,GL_SPOT_CUTOFF, 20.0); 
 
 	renderer = new Renderer( width, height, camera );
 }
@@ -91,6 +97,10 @@ void Engine::go() {
     glViewport( 0, 0, width, height );
     glEnable( GL_DEPTH_TEST );
     glfwSetInputMode( window, GLFW_CURSOR, GLFW_CURSOR_DISABLED );
+    // lighting
+    glEnable( GL_LIGHTING );
+    glEnable( GL_LIGHT0 );
+    glEnable( GL_COLOR_MATERIAL );
     // text config
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -121,6 +131,18 @@ void Engine::go() {
         // rendering
         glClearColor(.00f, 0.01f, 0.02f, 1.0f);
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        // lights
+        light_pos[0] = camera->Position[0];
+        light_pos[1] = camera->Position[1];
+        light_pos[2] = camera->Position[2];
+        glLightfv( GL_LIGHT0, GL_POSITION, light_pos );
+
+        light_pos[0] = camera->Front[0];
+        light_pos[1] = camera->Front[1];
+        light_pos[2] = camera->Front[2];
+        glLightfv( GL_LIGHT0, GL_SPOT_DIRECTION, light_pos );
+
         this->render();
 
         glfwSwapBuffers( window );
@@ -159,10 +181,68 @@ void Engine::move_camera( GLfloat dt ) {
         camera->ProcessKeyboard(LEFT, dt);
     if( glfwGetKey( window, GLFW_KEY_D ) == GLFW_PRESS )
         camera->ProcessKeyboard(RIGHT, dt);
-    /*if ( glfwGetKey( window, GLFW_KEY_Q ) == GLFW_PRESS ) 
+    if ( glfwGetKey( window, GLFW_KEY_Z ) == GLFW_PRESS ) 
         camera->ProcessKeyboard(UP, dt);
-    if ( glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS ) 
-        camera->ProcessKeyboard(DOWN, dt);*/
+    if ( glfwGetKey( window, GLFW_KEY_C ) == GLFW_PRESS ) 
+        camera->ProcessKeyboard(DOWN, dt);
+}
+
+void Engine::branch( int seed, vec3 pos, vec3 dir ) {
+    if (seed == 0) {
+        return;
+    }
+
+    // roulette terminate
+    if ( rand() / (float)RAND_MAX > 1.0 / seed ) {
+        vec3 next_pos = dir + pos;
+
+        cubePositions.push_back( next_pos );
+
+        // calc vec orthagonal to current
+        float x = rand() / (float)RAND_MAX * 2 - 1;
+        float y = rand() / (float)RAND_MAX * 2 - 1;
+        float z = (dir[0] * x + dir[1] * y) / dir[2];
+        branch( seed / 4, next_pos, normalize( vec3(x, y, z) ) );
+
+        branch( seed / 2, next_pos, dir );
+    }
+}
+
+vec3 linear(int i) {
+    return vec3(i, 0.0f, 0.0f);
+}
+
+vec3 vertical(int i) {
+    return vec3(0.0f, i, 0.0f);
+}
+
+void Engine::place_cubes( GenFunc f ) {
+    vec3 (*gen_func)(int);
+
+    if (f == GenFunc::line || f == GenFunc::vert) {
+        gen_func = (f == GenFunc::line) ? linear : vertical;
+
+        for (int i = 0; i < cube_count; i++) {
+            cubePositions.push_back( gen_func(i) );
+        }
+    }
+    else if (f == GenFunc::tree) {
+        srand( time(NULL) );
+
+        for (int i = 0; i < cube_count; i++) {
+            vec3 pos( rand() / (float)RAND_MAX * 50 - 25, 0, rand() / (float)RAND_MAX * 50 - 25 );
+            for (int j = 1; j < rand() / (float)RAND_MAX * (cube_count / 2) + (cube_count / 2); j++) {
+                cubePositions.push_back( vec3(pos[0], j, pos[2]) );
+            }
+        }
+
+        for (int i = 0; i < cube_count; i++) {
+            vec3 dir( rand() / (float)RAND_MAX * 2 - 1, 0, rand() / (float)RAND_MAX * 2 - 1);
+            for (int j = 1; j < cube_count; j++) {
+                branch( cube_count, cubePositions[i * cube_count + j], normalize(dir) );
+            }
+        }
+    }
 }
 
 void Engine::update( GLfloat dt ) {
@@ -175,9 +255,9 @@ void Engine::update( GLfloat dt ) {
 }
 
 void Engine::render() {
-	renderer->drawFloor();
-    renderer->drawCubes();
     renderer->drawText( "E-Minor", width / 2, height * 7 / 8 );
+	renderer->drawFloor();
+    renderer->drawCubes( cubePositions );
     renderer->drawLights( waver );
 }
 

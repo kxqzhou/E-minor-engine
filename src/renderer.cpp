@@ -25,12 +25,13 @@ Renderer::Renderer( int w, int h, Camera* cam ) {
     // textures
     textures["floor"] = loadTexture("overlook.png");
     textures["pato"] = loadTexture("pato.png");
+    textures["snow"] = loadTexture("snow.png");
 
 	// lighting
 	bloom = true;
 	exposure = 0.2f; // Change with Q and E
 
-	// Light sources
+	// Light source
     // - Positions
 	srand(time(NULL));
 	for (int i = 0; i < 20 ; i++) {
@@ -209,6 +210,237 @@ Renderer::~Renderer() {
     FT_Done_FreeType(ft);
 }
 
+void Renderer::renderCube() {
+	glBindVertexArray(cubeVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 36);
+    glBindVertexArray(0);
+}
+
+void Renderer::renderQuad() {
+	glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+    glBindVertexArray(0);
+}
+
+void Renderer::drawFloor() {
+	// 1. Render scene into floating point framebuffer
+    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    mat4 projection = perspective(camera->Zoom, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+    mat4 view = camera->GetViewMatrix();
+    mat4 model;
+
+    Shader shader = shads["bloom"];
+    shader.use();
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, value_ptr(view));
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, textures["floor"]);
+    // - set lighting uniforms
+    #pragma omp parallel for
+    for (GLuint i = 0; i < rand_positions.size(); i++) {
+        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Position").c_str()),
+                     1, &rand_positions[i][0]);
+        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Color").c_str()), 1,
+                     &rand_lights[i][0]);
+    }
+
+    #pragma omp parallel for
+    for (GLuint i = 0; i < slow_po.size(); i++) {
+        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Position").c_str()),
+                     1, &slow_po[i][0]);
+        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Color").c_str()), 1,
+                     &rand_lights[i][0]);
+    }
+    glUniform3fv(glGetUniformLocation(shader.ID, "viewPos"), 1, &camera->Position[0]);
+
+    // - create one large cube that acts as the floor
+    model = mat4();
+    model = translate(model, vec3(0.0f, -4.0f, 0.0));
+    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+    // - create one large cube that acts as the floor
+    model = mat4();
+    model = translate(model, vec3(70.0f, -3.0f, 0.0));
+    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+    // - create one large cube that acts as the floor
+    model = mat4();
+    model = translate(model, vec3(140.0f, -2.0f, 0.0));
+    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+    // - create one large cube that acts as the floor
+    model = mat4();
+    model = translate(model, vec3(210.0f, -1.0f, 0.0));
+    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    // - then create multiple cubes as the scenery
+    glBindTexture(GL_TEXTURE_2D, textures["pato"]);
+    model = mat4();
+    model = translate(model, vec3(0.0f, 0.5f, 0.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(2.0f, 0.0f, 1.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(-1.0f, -1.0f, 2.0));
+    //model = rotate(model, 60.0f, normalize(vec3(1.0, 0.0, 1.0)));
+    model = scale(model, vec3(2.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(0.0f, 2.7f, 4.0));
+    //model = rotate(model, 23.0f, normalize(vec3(1.0, 0.0, 1.0)));
+    model = scale(model, vec3(2.5));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+}
+
+void Renderer::drawCubes( std::vector<vec3> cubePositions ) {
+    Shader shader = shads["bloom"];
+    // - then create multiple cubes as the scenery
+    glBindTexture(GL_TEXTURE_2D, textures["pato"]);
+    mat4 model = mat4();
+    model = translate(model, vec3(0.0f, 0.5f, 0.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(2.0f, 0.0f, 1.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(-1.0f, -1.0f, 2.0));
+    //model = rotate(model, 60.0f, normalize(vec3(1.0, 0.0, 1.0)));
+    model = scale(model, vec3(2.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(0.0f, 2.7f, 4.0));
+    //model = rotate(model, 23.0f, normalize(vec3(1.0, 0.0, 1.0)));
+    model = scale(model, vec3(2.5));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    //vec3 mode_l(camera->Front.x , camera->Position.y, camera->Position.z - 5);
+    vec3 mode_l = camera->Position + 5.0f * normalize(camera->Front);
+    model = translate(model, vec3(mode_l.x, mode_l.y - 2, mode_l.z));
+    for (int j = 0; j < rand_positions.size(); j++){
+
+        if (abs(rand_positions[j].x - mode_l.x) < 2. &&
+            abs(rand_positions[j].y - mode_l.y) < 2. &&
+            abs(rand_positions[j].z - (mode_l.z-2)) < 2.){
+            //rand_positions.clear();
+            rand_positions.erase((rand_positions.begin()+j));
+            printf( "found a light!\n" );
+        }
+    }
+    for (int j = 0; j < slow_po.size(); j++) {
+        if (abs(slow_po[j].x - mode_l.x) < 2. &&
+            abs(slow_po[j].y - mode_l.y) < 2. &&
+            abs(slow_po[j].z - (mode_l.z - 2)) < 2.) {
+            //rand_positions.clear();
+            camera->MovementSpeed = 5;
+            slow_po.erase((slow_po.begin() + j));
+            printf( "found a light!\n" );
+        }
+    }
+    //model = rotate(model, 124.0f, normalize(vec3(1.0, 0.0, 1.0)));
+    model = scale(model, vec3(1.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    model = mat4();
+    model = translate(model, vec3(-3.0f, 0.0f, 0.0));
+    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
+    renderCube();
+
+    // procedurally generated positions from engine
+    glBindTexture( GL_TEXTURE_2D, textures["snow"] );
+    shads["light"].use();
+    for (int i = 0; i < cubePositions.size(); i++) {
+        model = mat4();
+        model = translate(model, cubePositions[i]);
+        glUniformMatrix4fv(glGetUniformLocation(shads["light"].ID, "model"), 1, GL_FALSE, value_ptr(model));
+        glUniform3fv( glGetUniformLocation(shads["light"].ID, "lightColor"), 1, tree_glow );
+        renderCube();
+    }
+}
+
+void Renderer::drawLights( float waver ) {
+    mat4 projection = perspective(camera->Zoom, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
+    // - finally show all the light sources as bright cubes
+    Shader shaderLight = shads["light"];
+    shaderLight.use();
+    glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "projection"), 1, GL_FALSE,
+                       value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "view"), 1, GL_FALSE, value_ptr(camera->GetViewMatrix()));
+
+    for (GLuint i = 0; i < rand_positions.size(); i++) {
+        mat4 model = mat4();
+        vec3 npos = rand_positions[i];
+        model = translate(model,vec3(npos.x, npos.y*waver, npos.z) );
+        model = scale(model, vec3(0.8f));
+        glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "model"), 1, GL_FALSE, value_ptr(model));
+        glUniform3fv(glGetUniformLocation(shaderLight.ID, "lightColor"), 1, &rand_lights[i][0]);
+        renderCube();
+    }
+
+    for (GLuint i = 0; i < slow_po.size(); i++) {
+        mat4 model = mat4();
+        model = translate(model,slow_po[i] );
+        model = scale(model, vec3(0.8f));
+        glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "model"), 1, GL_FALSE, value_ptr(model));
+        glUniform3fv(glGetUniformLocation(shaderLight.ID, "lightColor"), 1, &rand_lights[i][0]);
+        renderCube();
+    }
+
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // 2. Blur bright fragments w/ two-pass Gaussian Blur
+    GLboolean horizontal = true, first_iteration = true;
+    GLuint amount = 14;
+    Shader shaderBlur = shads["blur"];
+    shaderBlur.use();
+    for (GLuint i = 0; i < amount; i++) {
+        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
+        glUniform1i(glGetUniformLocation(shaderBlur.ID, "horizontal"), horizontal);
+        glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1]
+                                                     : pingpongColorbuffers[!horizontal]);  // bind texture of other framebuffer (or scene if first iteration)
+        renderQuad();
+        horizontal = !horizontal;
+        if (first_iteration)
+            first_iteration = false;
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // 2. Now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    Shader shaderBloomFinal = shads["bloomFinal"];
+    shaderBloomFinal.use();
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
+    //glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
+    glUniform1i(glGetUniformLocation(shaderBloomFinal.ID, "bloom"), bloom);
+    glUniform1f(glGetUniformLocation(shaderBloomFinal.ID, "exposure"), exposure);
+    renderQuad();
+}
+
 void Renderer::drawText( std::string text, int pen_x, int pen_y ) {
     FT_GlyphSlot  slot = face->glyph;  /* a small shortcut */
 
@@ -326,203 +558,6 @@ void Renderer::my_draw_bitmap( FT_Bitmap* bm, int top_left_x, int top_left_y ) {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     // Render quad
     glDrawArrays(GL_TRIANGLES, 0, 6);
-}
-
-
-void Renderer::renderCube() {
-	glBindVertexArray(cubeVAO);
-    glDrawArrays(GL_TRIANGLES, 0, 36);
-    glBindVertexArray(0);
-}
-
-void Renderer::renderQuad() {
-	glBindVertexArray(quadVAO);
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-    glBindVertexArray(0);
-}
-
-void Renderer::drawFloor() {
-	Shader shader = shads["bloom"];
-
-	// Render scene into floating point framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, hdrFBO);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    mat4 projection = perspective(camera->Zoom, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
-    mat4 view = camera->GetViewMatrix();
-    mat4 model;
-    shader.use();
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "projection"), 1, GL_FALSE, value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "view"), 1, GL_FALSE, value_ptr(view));
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, textures["floor"]);
-    // - set lighting uniforms
-    for (GLuint i = 0; i < rand_positions.size(); i++) {
-        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Position").c_str()),
-                     1, &rand_positions[i][0]);
-        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Color").c_str()), 1,
-                     &rand_lights[i][0]);
-    }
-    for (GLuint i = 0; i < slow_po.size(); i++) {
-        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Position").c_str()),
-                     1, &slow_po[i][0]);
-        glUniform3fv(glGetUniformLocation(shader.ID, ("lights[" + std::to_string(i) + "].Color").c_str()), 1,
-                     &rand_lights[i][0]);
-    }
-    glUniform3fv(glGetUniformLocation(shader.ID, "viewPos"), 1, &camera->Position[0]);
-
-    // - create one large cube that acts as the floor
-    model = mat4();
-    model = translate(model, vec3(0.0f, -4.0f, 0.0));
-    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-    // - create one large cube that acts as the floor
-    model = mat4();
-    model = translate(model, vec3(70.0f, -3.0f, 0.0));
-    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-    // - create one large cube that acts as the floor
-    model = mat4();
-    model = translate(model, vec3(140.0f, -2.0f, 0.0));
-    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-    // - create one large cube that acts as the floor
-    model = mat4();
-    model = translate(model, vec3(210.0f, -1.0f, 0.0));
-    model = scale(model, vec3(70.0f, 1.0f, 70.0f));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    // - then create multiple cubes as the scenery
-    glBindTexture(GL_TEXTURE_2D, textures["pato"]);
-    model = mat4();
-    model = translate(model, vec3(0.0f, 0.5f, 0.0));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    model = mat4();
-    model = translate(model, vec3(2.0f, 0.0f, 1.0));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    model = mat4();
-    model = translate(model, vec3(-1.0f, -1.0f, 2.0));
-    //model = rotate(model, 60.0f, normalize(vec3(1.0, 0.0, 1.0)));
-    model = scale(model, vec3(2.0));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    model = mat4();
-    model = translate(model, vec3(0.0f, 2.7f, 4.0));
-    //model = rotate(model, 23.0f, normalize(vec3(1.0, 0.0, 1.0)));
-    model = scale(model, vec3(2.5));
-    glUniformMatrix4fv(glGetUniformLocation(shader.ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-
-void Renderer::drawLights( float waver ) {
-	// - finally show all the light sources as bright cubes
-	Shader shaderLight = shads["light"];
-    shaderLight.use();
-    mat4 projection = perspective(camera->Zoom, (GLfloat) width / (GLfloat) height, 0.1f, 100.0f);
-    mat4 view = camera->GetViewMatrix();
-    mat4 model;
-    glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "projection"), 1, GL_FALSE,
-                       value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "view"), 1, GL_FALSE, value_ptr(view));
-
-    for (GLuint i = 0; i < rand_positions.size(); i++) {
-        model = mat4();
-        vec3 npos = rand_positions[i];
-        model = translate(model,vec3(npos.x, npos.y*waver, npos.z) );
-        model = scale(model, vec3(0.8f));
-        glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "model"), 1, GL_FALSE, value_ptr(model));
-        glUniform3fv(glGetUniformLocation(shaderLight.ID, "lightColor"), 1, &rand_lights[i][0]);
-        renderCube();
-    }
-    for (GLuint i = 0; i < slow_po.size(); i++) {
-        model = mat4();
-        model = translate(model,slow_po[i] );
-        model = scale(model, vec3(0.8f));
-        glUniformMatrix4fv(glGetUniformLocation(shaderLight.ID, "model"), 1, GL_FALSE, value_ptr(model));
-        glUniform3fv(glGetUniformLocation(shaderLight.ID, "lightColor"), 1, &rand_lights[i][0]);
-        renderCube();
-    }
-
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // 2. Blur bright fragments w/ two-pass Gaussian Blur
-    GLboolean horizontal = true, first_iteration = true;
-    GLuint amount = 14;
-    Shader shaderBlur = shads["blur"];
-    shaderBlur.use();
-    for (GLuint i = 0; i < amount; i++) {
-        glBindFramebuffer(GL_FRAMEBUFFER, pingpongFBO[horizontal]);
-        glUniform1i(glGetUniformLocation(shaderBlur.ID, "horizontal"), horizontal);
-        glBindTexture(GL_TEXTURE_2D, first_iteration ? colorBuffers[1]
-                                                     : pingpongColorbuffers[!horizontal]);  // bind texture of other framebuffer (or scene if first iteration)
-        renderQuad();
-        horizontal = !horizontal;
-        if (first_iteration)
-            first_iteration = false;
-    }
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-    // 2. Now render floating point color buffer to 2D quad and tonemap HDR colors to default framebuffer's (clamped) color range
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    Shader shaderBloomFinal = shads["bloomFinal"];
-    shaderBloomFinal.use();
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, colorBuffers[0]);
-    //glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-    glActiveTexture(GL_TEXTURE1);
-    glBindTexture(GL_TEXTURE_2D, pingpongColorbuffers[!horizontal]);
-    glUniform1i(glGetUniformLocation(shaderBloomFinal.ID, "bloom"), bloom);
-    glUniform1f(glGetUniformLocation(shaderBloomFinal.ID, "exposure"), exposure);
-    renderQuad();
-}
-
-void Renderer::drawCubes() {
-    mat4 model;
-
-    // generate 'player' cube
-    //vec3 mode_l(camera->Front.x , camera->Position.y, camera->Position.z - 5);
-    vec3 mode_l = camera->Position + 5.0f * normalize(camera->Front);
-    model = translate(model, vec3(mode_l.x, mode_l.y - 2, mode_l.z));
-    for (int j = 0; j < rand_positions.size(); j++){
-
-        if (abs(rand_positions[j].x - mode_l.x) < 2. &&
-            abs(rand_positions[j].y - mode_l.y) < 2. &&
-            abs(rand_positions[j].z - (mode_l.z-2)) < 2.){
-            //rand_positions.clear();
-            rand_positions.erase((rand_positions.begin()+j));
-            printf("found a light!\n");
-        }
-    }
-    for (int j = 0; j < slow_po.size(); j++) {
-        if (abs(slow_po[j].x - mode_l.x) < 2. &&
-            abs(slow_po[j].y - mode_l.y) < 2. &&
-            abs(slow_po[j].z - (mode_l.z - 2)) < 2.) {
-            //rand_positions.clear();
-            camera->MovementSpeed = .10;
-            slow_po.erase((slow_po.begin() + j));
-            printf("found a light!\n");
-        }
-    }
-    //model = rotate(model, 124.0f, normalize(vec3(1.0, 0.0, 1.0)));
-    model = scale(model, vec3(1.0));
-    glUniformMatrix4fv(glGetUniformLocation(shads["bloom"].ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
-
-    renderCube();
-    model = mat4();
-    model = translate(model, vec3(-3.0f, 0.0f, 0.0));
-    glUniformMatrix4fv(glGetUniformLocation(shads["bloom"].ID, "model"), 1, GL_FALSE, value_ptr(model));
-    renderCube();
 }
 
 

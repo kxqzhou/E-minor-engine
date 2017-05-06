@@ -36,6 +36,8 @@ public:
 private:
 	GLFWwindow* window;
 
+	GLfloat light_pos[4] = { 0.0, 0.0, 0.0, 1.0 };
+
 	void move_camera( GLfloat dt );
 
 	Renderer* renderer;

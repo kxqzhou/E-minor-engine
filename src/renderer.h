@@ -29,19 +29,21 @@ public:
 	GLboolean bloom;
 	GLfloat exposure;
 
+	GLuint hdrFBO;
+
 	Renderer( int w, int h, Camera* cam );
 	~Renderer();
 
 	void drawFloor();
 
-	void drawCubes();
+	void drawCubes( std::vector<glm::vec3> cubePositions );
 
 	void drawText( std::string text, int pen_x, int pen_y );
 
 	void drawLights( float waver );
 
 private:
-	glm::vec3 lightPos;
+	GLfloat tree_glow[3] = { 0.9f, 0.9f, 0.9f };
 
 	Camera* camera;
 
@@ -51,7 +53,6 @@ private:
 	GLuint quadVAO;
 	GLuint quadVBO;
 
-	GLuint hdrFBO;
 	GLuint colorBuffers[2];
 
 	GLuint pingpongFBO[2];
