@@ -106,30 +106,23 @@ if(LINUX)
 endif(LINUX)
 
 
+find_package( OpenGL REQUIRED )
+find_package( Threads REQUIRED )
 
 # add subdirectory
-add_subdirectory( deps ) 
+#add_subdirectory( deps ) 
 
 # Get all source files from src
 aux_source_directory(src SRC_LIST)
 
 # Get Include Directories
-set (
-      INCLUDE_DIRS
-      include
-      deps/glfw-3.2.1/include
-      deps/glew-2.0.0/include
-      deps/soil/src
-      deps/freetype-2.7.1/include
-    )
-
-include_directories(${INCLUDE_DIRS})
+include_directories( include )
 
 # Add executable to project
 add_executable(${PROJECT_NAME} ${SRC_LIST})
 
 # Link GLFW and GLEW to main executable
-target_link_libraries(${PROJECT_NAME} libglew_static glfw ${GLFW_LIBRARIES} SOIL freetype )
+target_link_libraries(${PROJECT_NAME} glew glfw ${GLFW_LIBRARIES} SOIL assimp freetype )
 
 # C++ Standard
 #add_definitions( -std=c++0x )
