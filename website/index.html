@@ -65,7 +65,36 @@ As soon as all the basic primitives could be set up, the next step was adding a 
 
         <h3>Procedural Generation</h3>
 
-        <p></p>
+        <p>We wanted to incorporate some procedurally generated elements in order to be able to create varied and unique environments on each round of play. To simplify things, we only considered using the cube primitive as the model base. Then, we created several functions that would specify a particular layout for the calculating the positions of the cubes. Initially, this was done through using a function pointer and an enum class to swap out the particular generation function desired. Later, the inputs were changed slightly so that the base of the structures could be positioned randomly, so the function pointer was done away with in favor of a simpler if-else statement.</p>
+
+        <p>We implemented three functions to generate cube structures. The first two were relatively simple horizontal or vertical towers. This was done by choosing start coordinates and then iterating over a particular axis. For example, a vertical tower was constructed by randomly selecting x and z coordinates and then incrementing the y coordinate by one for each cube. The third generation function was more complex, with the goal being to create structures with a visual appearance similar to trees. To do this, first we scattered several vertical towers randomly about the scene. Then, going from bottom to top, we placed cubes in a direction perpendicular to the tower and recursively called the branch with progressively lower seed counts. As we expanded along the branch, we also included a random chance to grow in a direction orthagonal to the branch as well.</p>
+
+        <div align="center">
+            <table style="width=100%">
+              <tr>
+                <td align="middle">
+                    <img src="images/placubes.png" width="480px" />
+                    <figcaption>Choosing the generator function</figcaption>
+                </td>
+                <td align="middle">
+                    <img src="images/varied_forest.png" width="480px" />
+                    <figcaption>A "forest" with different tree types</figcaption>
+                </td>
+              </tr>
+              <tr>
+                <td align="middle">
+                    <img src="images/branch.png" width="480px" />
+                    <figcaption align="middle">Code to create "branches"</figcaption>
+                </td>
+                <td align="middle">
+                    <img src="images/forest2.png" width="480px" />
+                    <figcaption align="middle">A randomly generated forest</figcaption>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+        <p>We also looked into possibly using geometry shaders as an alternative method of outputting new primitives, but we weren't able to figure out how to correctly link the input parameters to the shader.</p>
 
     <h2 align="padding-left">Final Remarks</h2>
     <center>
@@ -95,7 +124,7 @@ As soon as all the basic primitives could be set up, the next step was adding a 
         <p>Implemented all gameplay components, texture mapping, and basic lighting. Researched OpenGL areas and created presentation slides and video footage.</p>
 
         <h3>Kyle:</h3>
-        <p>Refactored OpenGL project framework into separate files based on functionality. Created procedural generation code and implemented vignette shaders.</p>
+        <p>Set up OpenGL project framework and reworked code into separate files based on class functionality. Created procedural generation and text rendering code.</p>
         <br>
 
     <br>
