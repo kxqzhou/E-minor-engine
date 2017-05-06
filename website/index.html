@@ -38,16 +38,6 @@
         <center>
     <img src="images/3.png" style="width:400px;">
     <img src="images/4.png" style="width:300px;"></center>
-
-            <h3>Primitives & shaders</h3>
-Shaders are written in GLSL. 
-In order to achieve interesting surfaces we used vertex and fragment shaders. A vertex shader is used on every vertex, and can change the attributes of a mesh’s vertices. The fragment shader takes care of the pixels, controlling what the in-betweens of the vertices. They are interpolated between the defined vertices following specified parameters. These shader will be better reflected with the lighting we have in the scene. 
-<center>
-<img src="images/2_shaded_cubes" style="width:400px;"></center>
-Shaders are fun, but as any primitive engine, we wanted to be able to load our own textures into the picture. We used SOIL, the Simple OpenGL Image Library. This library will take in one of our images, and generate the texture for a specified mesh. The vertex shader accepts the texture coordinates, and then forwards the coordinates to the fragment shader. The texture is bound to the mesh, and there are a few options. We were able to decorate our cube meshes with basic square textures. We were able to load models with Assimp, however we wanted to focus more on getting our mechanics done, and briefly played with premade .obj models. 
-        <center>
-        <img src="images/2.png" style="width:400px;">
-        </center>
         <h3>Camera</h3>
 
         <h3>Gameplay</h3>
@@ -58,7 +48,11 @@ As soon as all the basic primitives could be set up, the next step was adding a 
 <p>The game we had in mind is as follows: under a minute, a character must try to eat up as many light emitting cubes as possible. These emissive cubes had slight vertical translational motion to signify that they were ready to be eaten. Additionally, the position for these lights were randomly generated. Random color values for the lights were also generated, so its readlly does feel like a new game with each spawn. We set up a distance formula that would determine if our character was near a cube. Upon contact, the cube would disappear and give our player another point. 
 <p>This is a cute attempt, but there wasn’t much drama. So to introduce some adversary play: I introduced more random lights, who unlike the other cubes, remained stationary (i.e. no vertical motion). These few random lights would actually slow down the movement of the character, and thus hamper the amount of lights the character could obtain under a minute. This was introduced to trick the careless player into eating these, since the faster the player moved, the less likely the player would be able to distinguish which cubes are the booby traps. In harder levels, the cubes will move very slowly, such that, if really careless, the player would not be able to distinguish the moving cubes from the stationary cubes.  
         
-
+        <h3>Lighting</h3>
+        Vertex shaders and Fragment shaders. 
+        <center>
+        <img src="images/2.png" style="width:400px;">
+        </center>
 
 
         <h3>Text</h3>
