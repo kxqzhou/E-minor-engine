@@ -11,7 +11,7 @@ To run, follow these steps:<br />
 Compiling this project requires several dependencies. Below is a command for Linux machines to retrieve the necessary packages:<br />
 sudo apt-get install cmake xorg-dev libxmu-dev libxi-dev libgl-dev dos2unix git wget libglew-dev libglfw3-dev libassimp-dev libsoil-dev libfreetype6-dev libglm-dev<br />
 
-To play the game, use the AWSD keys for lateral movement and the mouse to control the angle of view. You can also press 1, 2, or 3 to generate random structures of cubes, being "tree-like", vertical, or horizontal, respectively.<br />
+To play the game, use the WASD keys for lateral movement and the mouse to control the angle of view. You can also press 1, 2, or 3 to generate random structures of cubes, being "tree-like", vertical, or horizontal, respectively.<br />
 
 Contributors: Kyle Zhou and Ricardo Herrera<br />
 Long live Patrick Star.
