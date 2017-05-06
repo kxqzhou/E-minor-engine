@@ -28,6 +28,8 @@ void Engine::init() {
     glLightf(GL_LIGHT0,GL_SPOT_CUTOFF, 20.0); 
 
 	renderer = new Renderer( width, height, camera );
+
+    srand( time(NULL) );
 }
 
 Engine::~Engine() {
@@ -168,6 +170,15 @@ void Engine::handle_input( GLfloat dt ) {
         renderer->exposure -= 0.5 * dt;
     else if ( glfwGetKey( window, GLFW_KEY_E ) == GLFW_PRESS)
         renderer->exposure += 0.5 * dt;
+    if ( glfwGetKey( window, GLFW_KEY_1 ) == GLFW_PRESS ) {
+        this->place_cubes( GenFunc::tree );
+    }
+    if ( glfwGetKey( window, GLFW_KEY_2 ) == GLFW_PRESS ) {
+        this->place_cubes( GenFunc::vert );
+    }
+    if ( glfwGetKey( window, GLFW_KEY_3 ) == GLFW_PRESS ) {
+        this->place_cubes( GenFunc::line );
+    }
 }
 
 // Moves/alters the camera positions based on user input
@@ -208,29 +219,35 @@ void Engine::branch( int seed, vec3 pos, vec3 dir ) {
     }
 }
 
-vec3 linear(int i) {
-    return vec3(i, 0.0f, 0.0f);
+vec3 linear(int i, float z) {
+    return vec3(i, 0.0f, z);
 }
 
-vec3 vertical(int i) {
-    return vec3(0.0f, i, 0.0f);
+vec3 vertical(int i, float x, float z) {
+    return vec3(x, i, z);
 }
 
 void Engine::place_cubes( GenFunc f ) {
-    vec3 (*gen_func)(int);
+    //vec3 (*gen_func)(int);
 
-    if (f == GenFunc::line || f == GenFunc::vert) {
-        gen_func = (f == GenFunc::line) ? linear : vertical;
+    if (f == GenFunc::line) {
+        float z = rand() / (float)RAND_MAX * 50 - 25;
 
         for (int i = 0; i < cube_count; i++) {
-            cubePositions.push_back( gen_func(i) );
+            cubePositions.push_back( linear(i, z) );
+        }
+    }
+    else if (f == GenFunc::vert ) {
+        float x = rand() / (float)RAND_MAX * 100 - 50;
+        float z = rand() / (float)RAND_MAX * 50 - 25; 
+
+        for (int i = 0; i < cube_count; i++) {
+            cubePositions.push_back( vertical(i, x, z) );
         }
     }
     else if (f == GenFunc::tree) {
-        srand( time(NULL) );
-
         for (int i = 0; i < cube_count; i++) {
-            vec3 pos( rand() / (float)RAND_MAX * 50 - 25, 0, rand() / (float)RAND_MAX * 50 - 25 );
+            vec3 pos( rand() / (float)RAND_MAX * 100 - 50, 0, rand() / (float)RAND_MAX * 50 - 25 );
             for (int j = 1; j < rand() / (float)RAND_MAX * (cube_count / 2) + (cube_count / 2); j++) {
                 cubePositions.push_back( vec3(pos[0], j, pos[2]) );
             }
