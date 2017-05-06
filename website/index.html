@@ -30,7 +30,7 @@
 
     <h2 align="padding-left">Abstract</h2>
 
-        <p>For our CS184 final project we decided to try implementing a simple game engine, capable of running simple real time graphics and game mechanics. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular we wanted to try implementing light effects such as god rays and vignetting effects. Although our initial goal was quite optimistic in its scope, we were able to create a functional game with simple gameplay and features such as procedurally generation, glowing lights, and camera tracking.</p>
+        <p>For our CS184 final project we decided to try implementing a simple game engine, capable of running simple real time graphics and game mechanics. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular, we wanted to try implementing light effects such as god rays and vignetting effects. Although our initial goal was quite optimistic in its scope, we were able to create a functional game with simple gameplay and features such as procedurally generation, glowing lights, and camera tracking.</p>
 
     <h2 align="padding-left">Technical Approach and Implementation Results</h2>
         
@@ -57,47 +57,78 @@ As soon as all the basic primitives could be set up, the next step was adding a 
 
         <h3>Text</h3>
 
+            <p>Text was implemented through the FreeType library. FreeType provides an interface to access the content of font files, leaving the implementation of the actual graphics processing up to the user. In our case, we took the TrueType FreeSans font from Ubuntu's default fonts.</p>
+
+            <p>The method for rendering text is as follows: using the FreeType Glyph structure, attempt to load the character at the current slot. If successful, . Then, advance the pen (the coordinates of where the letter is being drawn) forward by the increment provided by the glyph slot.</p>
+
+            <p>There was an issue in that we drew the characters beginning from their top left coordinate. As a result, the letters are shifted upwards when there are inconsistent heights, which is particularly noticeable in the picture on the right below.</p>
+
+            <div align="center">
+                <table style="width=100%">
+                  <tr>
+                    <td align="middle">
+                        <img src="images/tex1.png" width="480px" />
+                        <figcaption>A text example</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/tex2.png" width="480px" />
+                        <figcaption>A longer string</figcaption>
+                    </td>
+                  </tr>
+                </table>
+            </div>
+
         <h3>Procedural Generation</h3>
 
-        <p>We wanted to incorporate some procedurally generated elements in order to be able to create varied and unique environments on each round of play. To simplify things, we only considered using the cube primitive as the model base. Then, we created several functions that would specify a particular layout for the calculating the positions of the cubes. Initially, this was done through using a function pointer and an enum class to swap out the particular generation function desired. Later, the inputs were changed slightly so that the base of the structures could be positioned randomly, so the function pointer was done away with in favor of a simpler if-else statement.</p>
+            <p>We wanted to incorporate some procedurally generated elements in order to be able to create varied and unique environments on each round of play. To simplify things, we only considered using the cube primitive as the model base. Then, we created several functions that would specify a particular layout for the calculating the positions of the cubes. Initially, this was done through using a function pointer and an enum class to swap out the particular generation function desired. Later, the inputs were changed slightly so that the base of the structures could be positioned randomly, so the function pointer was done away with in favor of a simpler if-else statement.</p>
 
-        <p>We implemented three functions to generate cube structures. The first two were relatively simple horizontal or vertical towers. This was done by choosing start coordinates and then iterating over a particular axis. For example, a vertical tower was constructed by randomly selecting x and z coordinates and then incrementing the y coordinate by one for each cube. The third generation function was more complex, with the goal being to create structures with a visual appearance similar to trees. To do this, first we scattered several vertical towers randomly about the scene. Then, going from bottom to top, we placed cubes in a direction perpendicular to the tower and recursively called the branch with progressively lower seed counts. As we expanded along the branch, we also included a random chance to grow in a direction orthagonal to the branch as well.</p>
+            <p>We implemented three functions to generate structures of cubes. The first two were relatively simple horizontal or vertical towers. This was done by choosing start coordinates and then iterating over a particular axis. For example, a vertical tower was constructed by randomly selecting x and z coordinates and then incrementing the y coordinate by one for each cube. The third generation function was more complex, with the goal being to create structures with a visual appearance similar to trees. To do this, first we scattered several vertical towers randomly about the scene. Then, going from bottom to top, we placed cubes in a direction perpendicular to the tower and recursively called the branch with progressively lower seed counts, with a chance to randomly terminate that was inversely proportional to the seed number. As we expanded along the branch, we also included a random chance to grow in a direction orthagonal to the branch as well.</p>
 
-        <div align="center">
-            <table style="width=100%">
-              <tr>
-                <td align="middle">
-                    <img src="images/placubes.png" width="480px" />
-                    <figcaption>Choosing the generator function</figcaption>
-                </td>
-                <td align="middle">
-                    <img src="images/varied_forest.png" width="480px" />
-                    <figcaption>A "forest" with different tree types</figcaption>
-                </td>
-              </tr>
-              <tr>
-                <td align="middle">
-                    <img src="images/branch.png" width="480px" />
-                    <figcaption align="middle">Code to create "branches"</figcaption>
-                </td>
-                <td align="middle">
-                    <img src="images/forest2.png" width="480px" />
-                    <figcaption align="middle">A randomly generated forest</figcaption>
-                </td>
-              </tr>
-            </table>
-          </div>
+            <div align="center">
+                <table style="width=100%">
+                  <tr>
+                    <td align="middle">
+                        <img src="images/placubes.png" width="480px" />
+                        <figcaption>Choosing the generator function</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/varied_forest.png" width="480px" />
+                        <figcaption>A "forest" with different tree types</figcaption>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td align="middle">
+                        <img src="images/branch.png" width="480px" />
+                        <figcaption align="middle">Code to create "branches"</figcaption>
+                    </td>
+                    <td align="middle">
+                        <img src="images/forest2.png" width="480px" />
+                        <figcaption align="middle">A randomly generated forest</figcaption>
+                    </td>
+                  </tr>
+                </table>
+            </div>
 
-        <p>We also looked into possibly using geometry shaders as an alternative method of outputting new primitives, but we weren't able to figure out how to correctly link the input parameters to the shader.</p>
+            <p>We also looked into possibly using geometry shaders as an alternative method of outputting new primitives, but we weren't able to figure out how to correctly link the input parameters to the shader.</p>
+
+    <h2 align="padding-left">Video Clips</h2>
+
+    <a href="https://drive.google.com/a/berkeley.edu/file/d/0B3FditKIFaf3NnlFb1c1NmhhblU/view?usp=sharing_eil&ts=590d5725">Procedural Demo</a>
+    <br>
+    <a href="https://drive.google.com/file/d/0B3FditKIFaf3a2tTbWF0Z2kydEk/view?ts=590d5725">Gameplay</a>
+    <br>
 
     <h2 align="padding-left">Final Remarks</h2>
     <center>
     <img src="images/first.jpg" style="width:340px;">
     <img src="images/second.png" style="width:340px;"></center>
-    <br>This was a lot of work, to say the least. It was a very rewarding challenge to embark. OpenGL is something both of us have been wanting to explore, so this project was a great way to fulfill that. Both of us are quite invested in computer graphics for animation, and it was a good change to try and learn the more real time side of the spectrum. 
-        My copy of Game Engine Architecture should be arriving very soon. 
+    <br>
 
-        <p>Unfortunately, due to limitations on our time as well as unexpected difficulty with compiling dependencies and cross platform compatibility, we were not able to add as many features as we would have liked. However, this project has taught us a lot about low-level graphics programming and we have each gained a massive appreciation for the technical prowess and effort that is required for game engine development. We hope that we can continue to extend and improve upon this project in the future.</p>
+        <p>This was a lot of work, to say the least. It was a very rewarding challenge to embark. OpenGL is something both of us have been wanting to explore, so this project was a great way to fulfill that. Both of us are quite invested in computer graphics for animation, and it was a good change to try and learn the more real time side of the spectrum. 
+        <br><br>
+        My copy of Game Engine Architecture should be arriving very soon. </p>
+
+        <p>Unfortunately, due to limitations on our time as well as unexpected difficulty with compiling the project dependencies and cross platform compatibility, we were not able to add as many features as we would have liked. However, this project has taught us a lot about low-level graphics programming and we have each gained a massive appreciation for the technical prowess and effort that is required for game engine development. We hope that we can continue to extend and improve upon this project in the future.</p>
 
     <h2 align="padding-left">References</h2>
 
