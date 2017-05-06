@@ -199,11 +199,11 @@ void Engine::move_camera( GLfloat dt ) {
 }
 
 void Engine::branch( int seed, vec3 pos, vec3 dir ) {
-    if (seed == 0) {
+    if (seed == 1) {
         return;
     }
-
-    // roulette terminate
+    
+    // roulette terminate, higher chance to stop the farther along the branch
     if ( rand() / (float)RAND_MAX > 1.0 / seed ) {
         vec3 next_pos = dir + pos;
 
