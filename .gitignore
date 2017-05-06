@@ -35,6 +35,9 @@
 *.out
 *.app
 
+# dependencies (os conflicts)
+deps
+
 # CMake Stuff
 CMakeCache.txt
 CMakeFiles

@@ -36,13 +36,16 @@
         
         <p>The bulk of this project was done using OpenGL and several supporting frameworks. We used GLFW for windows and context creation as well as keyboard input, GLM for mathematical operations such as vectors and matrixes, ASSIMP to load models, SOIL to load textures, and FreeType for text rendering. The LearnOpenGL tutorials were a significant resource in accomplishing our objectives.</p>
 
+        <p>Our code was split into several major components. There were the framework dependencies, and we also borrowed a Camera class to help abstract the camera functions from the LearnOpenGL tutorials in addition to a Shader class that provided OpenGL's shader program functionality. In addition, we wrote an Engine class that handled the core GLFW loop in addition to any window callback functions such as keyboard input or mouse movement. The Engine also handled updates for any geometry positions, such as variables that determined the hovering up and down movement of the emmissive cubes along with the procedural generation functions. The Engine class also contained an instance of a Renderer class we wrote, which handled all the drawing and shaders of geometry as well as text. A pointer to a camera was created in the Engine class and passed to the Renderer for use in calculating the model-view-projection matrixes.</p>
 
-            <h3>Primitives / Shaders / Textures</h3>
-Shaders are written in GLSL. 
-In order to achieve interesting surfaces we used vertex and fragment shaders. A vertex shader is used on every vertex, and can change the attributes of a mesh’s vertices. The fragment shader takes care of the pixels, controlling what the in-betweens of the vertices. They are interpolated between the defined vertices following specified parameters. These shader will be better reflected with the lighting we have in the scene. 
+        <p>We also wrote a small function in a Texture header that would load textures through SOIL and return the ID from successfully binding it as an OpenGL texture. Both the Shader and Texture class were modified slightly to allow us to write only the file name instead of the full string path when loading a resource. We also created a few custom textures for use in the game and shaders for lighting tests.</p>
+
+    <h3>Primitives / Shaders / Textures</h3>
+<p>Shaders are written in GLSL. 
+In order to achieve interesting surfaces we used vertex and fragment shaders. A vertex shader is used on every vertex, and can change the attributes of a mesh’s vertices. The fragment shader takes care of the pixels, controlling what the in-betweens of the vertices. They are interpolated between the defined vertices following specified parameters. These shader will be better reflected with the lighting we have in the scene.</p>
 <center>
 <img src="images/2_shaded_cubes" style="width:400px;"></center>
-Shaders are fun, but as any primitive engine, we wanted to be able to load our own textures into the picture. We used SOIL, the Simple OpenGL Image Library. This library will take in one of our images, and generate the texture for a specified mesh. The vertex shader accepts the texture coordinates, and then forwards the coordinates to the fragment shader. The texture is bound to the mesh, and there are a few options. We were able to decorate our cube meshes with basic square textures. We were able to load models with Assimp, however we wanted to focus more on getting our mechanics done, and briefly played with premade .obj models. 
+<p>Shaders are fun, but as any primitive engine, we wanted to be able to load our own textures into the picture. We used SOIL, the Simple OpenGL Image Library. This library will take in one of our images, and generate the texture for a specified mesh. The vertex shader accepts the texture coordinates, and then forwards the coordinates to the fragment shader. The texture is bound to the mesh, and there are a few options. We were able to decorate our cube meshes with basic square textures. We were able to load models with Assimp, however we wanted to focus more on getting our mechanics done, and briefly played with premade .obj models.</p>
         <center>
     <img src="images/3.png" style="width:400px;">
     <img src="images/4.png" style="width:300px;"></center>
@@ -52,18 +55,26 @@ Shaders are fun, but as any primitive engine, we wanted to be able to load our o
 
         <h3>Camera</h3>
 
+            <p>The LearnOpenGL tutorials provided a camera class that we incorporated into the engine. It is capable of responding to mouse movement and scroll wheel movement as well as the WASD keys to move in the XZ plane. This was done through several vectors that recorded information about the camera, such as its current position, a representation of the forward, upwards, and rightward directions, and the Euler angles (Yaw and pitch. Roll was not included because the camera is not capable of behaving in such a way). We also added the capability to move vertically on pressing the Z and C keys.</p>
+
         <h3>Gameplay</h3>
-As soon as all the basic primitives could be set up, the next step was adding a playable character. So to begin we had one textured cube serve as the agent. Its position was determined relative to the camera. As the camera moves around the scene, the cube moves directly in front of it, maintaining a 3rd person point of view. 
+<p>As soon as all the basic primitives could be set up, the next step was adding a playable character. So to begin we had one textured cube serve as the agent. Its position was determined relative to the camera. As the camera moves around the scene, the cube moves directly in front of it, maintaining a 3rd person point of view. This is done by simply taking a unit vector of the camera's forward direction, multiplying it by a scalar, and adding it to the camera's position vector.</p>
 <center>
     <img src="images/7.png" style="width:350px;">
     <img src="images/6.png" style="width:350px;"></center>
-<p>The game we had in mind is as follows: under a minute, a character must try to eat up as many light emitting cubes as possible. These emissive cubes had slight vertical translational motion to signify that they were ready to be eaten. Additionally, the position for these lights were randomly generated. Random color values for the lights were also generated, so its readlly does feel like a new game with each spawn. We set up a distance formula that would determine if our character was near a cube. Upon contact, the cube would disappear and give our player another point. 
-<p>This is a cute attempt, but there wasn’t much drama. So to introduce some adversary play: I introduced more random lights, who unlike the other cubes, remained stationary (i.e. no vertical motion). These few random lights would actually slow down the movement of the character, and thus hamper the amount of lights the character could obtain under a minute. This was introduced to trick the careless player into eating these, since the faster the player moved, the less likely the player would be able to distinguish which cubes are the booby traps. In harder levels, the cubes will move very slowly, such that, if really careless, the player would not be able to distinguish the moving cubes from the stationary cubes.  
+<p>The game we had in mind is as follows: under a minute, a character must try to eat up as many light emitting cubes as possible. These emissive cubes had slight vertical translational motion to signify that they were ready to be eaten. Additionally, the position for these lights were randomly generated. Random color values for the lights were also generated, to give the feel of a new game with each spawn. We set up a distance formula that would determine if our character was near a cube. Upon contact, the cube would disappear and give our player another point. 
+<p>This is a cute attempt, but there wasn’t much drama. So to introduce some adversary play: I (Ricky) introduced more random lights, who unlike the other cubes, remained stationary (i.e. no vertical motion). These few random lights would actually slow down the movement of the character, and thus hamper the amount of lights the character could obtain under a minute. This was introduced to trick the careless player into eating these, since the faster the player moved, the less likely the player would be able to distinguish which cubes are the booby traps. In harder levels, the cubes will move very slowly, such that, if really careless, the player would not be able to distinguish the moving cubes from the stationary cubes.</p>
         
         <h3>Lighting</h3>
-        Vertex shaders and Fragment shaders. 
+        <p>In OpenGL, lighting can be achieved through vertex shaders and fragment shaders. The LearnOpenGL tutorials provided a couple shaders with interesting effects such as bloom, fringes of light around the borders of bright areas in an image. We attempted to implement our own shader to draw a vignette onto the screen. The algorithm would be as follows:</p>
+
+        <p>Using color and texture coordinate inputs from the vertex shader, sample the texture for a texture color. Then, determine the distance of the current vertex position from the screen center. This was calculated with the equation vec2 pos = (gl_FracCoord.xy / screen_size.xy) - vec2(0.5, 0.5), where vec2(0.5, 0.5) represents the screen center in OpenGL's window coordinates. The length of this vector determines how far away from the center the current vertex is, which we use to perform Hermite interpolation with a user specified inner and outer radius of the vignette. Finally, we mix the sampled texture color with itself but scaled by the value we calculated from interpolation.</p>
+
+        <p>Unfortunately, we had a lot of trouble understanding how OpenGL fed inputs to the shader, particularly how to set up vertex layouts such that the shader could read data correctly from them. As a result, we did not complete the vignette effects. We would otherwise have also tried implementing god-ray effects through another shader.</p>
+
         <center>
-        <img src="images/2.png" style="width:400px;">
+            <img src="images/2.png" style="width:400px;">
+            <figcaption>Bloom and glow effects</figcaption>
         </center>
 
 
@@ -71,7 +82,7 @@ As soon as all the basic primitives could be set up, the next step was adding a 
 
             <p>Text was implemented through the FreeType library. FreeType provides an interface to access the content of font files, leaving the implementation of the actual graphics processing up to the user. In our case, we took the TrueType FreeSans font from Ubuntu's default fonts.</p>
 
-            <p>The method for rendering text is as follows: using the FreeType Glyph structure, attempt to load the character at the current slot. If successful, . Then, advance the pen (the coordinates of where the letter is being drawn) forward by the increment provided by the glyph slot.</p>
+            <p>The method for rendering text is as follows: using the FreeType Glyph structure, attempt to load the character at the current slot. If successful, we proceed to render the character. We create a vertex buffer object representing its corner coordinates and use the OpenGL function glTexImage2D to create a texture for our character, with the buffer data provided in the glyph. Using a set of vertex and fragment shaders provided by LearnOpenGL tutorials, we can draw the text texture. Finally, advance the pen (the coordinates of where the letter is being drawn) forward by the increment provided by the glyph slot.</p>
 
             <p>There was an issue in that we drew the characters beginning from their top left coordinate. As a result, the letters are shifted upwards when there are inconsistent heights, which is particularly noticeable in the picture on the right below.</p>
 
@@ -136,9 +147,9 @@ As soon as all the basic primitives could be set up, the next step was adding a 
     <img src="images/second.png" style="width:340px;"></center>
     <br>
 
-        <p>This was a lot of work, to say the least. It was a very rewarding challenge to embark. OpenGL is something both of us have been wanting to explore, so this project was a great way to fulfill that. Both of us are quite invested in computer graphics for animation, and it was a good change to try and learn the more real time side of the spectrum. 
+        <p>This was a lot of work, to say the least. It was a very rewarding challenge to embark on. OpenGL is something both of us have been wanting to explore, so this project was a great way to fulfill that. Both of us are quite invested in computer graphics for animation, and it was a good change to try and learn more about the real-time side of the spectrum. 
         <br><br>
-        My copy of Game Engine Architecture should be arriving very soon. </p>
+        My (Ricky's) copy of Game Engine Architecture should be arriving very soon. </p>
 
         <p>Unfortunately, due to limitations on our time as well as unexpected difficulty with compiling the project dependencies and cross platform compatibility, we were not able to add as many features as we would have liked. However, this project has taught us a lot about low-level graphics programming and we have each gained a massive appreciation for the technical prowess and effort that is required for game engine development. We hope that we can continue to extend and improve upon this project in the future.</p>
 
@@ -158,10 +169,10 @@ As soon as all the basic primitives could be set up, the next step was adding a 
     <h2 align="padding-left">Contributions</h2>
 
     	<h3>Ricky:</h3>
-        <p>Implemented all gameplay components, texture mapping, and basic lighting. Researched OpenGL areas and created presentation slides and video footage.</p>
+        <p>Implemented the gameplay components, texture mapping, and basic lighting. Researched OpenGL areas and created presentation slides and video footage.</p>
 
         <h3>Kyle:</h3>
-        <p>Set up OpenGL project framework and reworked code into separate files based on class functionality. Created procedural generation and text rendering code.</p>
+        <p>Set up OpenGL project framework and reworked code into separate files based on class functionality. Created procedural generation and text rendering code, attempted vignette shaders.</p>
         <br>
 
     <br>
