@@ -35,9 +35,21 @@
     <h2 align="padding-left">Technical Approach and Implementation Results</h2>
         
         <p>The bulk of this project was done using OpenGL and several supporting frameworks. We used GLFW for windows and context creation as well as keyboard input, GLM for mathematical operations such as vectors and matrixes, ASSIMP to load models, SOIL to load textures, and FreeType for text rendering. The LearnOpenGL tutorials were a significant resource in accomplishing our objectives.</p>
+
+
+            <h3>Primitives / Shaders / Textures</h3>
+Shaders are written in GLSL. 
+In order to achieve interesting surfaces we used vertex and fragment shaders. A vertex shader is used on every vertex, and can change the attributes of a mesh’s vertices. The fragment shader takes care of the pixels, controlling what the in-betweens of the vertices. They are interpolated between the defined vertices following specified parameters. These shader will be better reflected with the lighting we have in the scene. 
+<center>
+<img src="images/2_shaded_cubes" style="width:400px;"></center>
+Shaders are fun, but as any primitive engine, we wanted to be able to load our own textures into the picture. We used SOIL, the Simple OpenGL Image Library. This library will take in one of our images, and generate the texture for a specified mesh. The vertex shader accepts the texture coordinates, and then forwards the coordinates to the fragment shader. The texture is bound to the mesh, and there are a few options. We were able to decorate our cube meshes with basic square textures. We were able to load models with Assimp, however we wanted to focus more on getting our mechanics done, and briefly played with premade .obj models. 
         <center>
     <img src="images/3.png" style="width:400px;">
     <img src="images/4.png" style="width:300px;"></center>
+        <center>
+        <img src="images/2.png" style="width:400px;">
+        </center>
+
         <h3>Camera</h3>
 
         <h3>Gameplay</h3>
