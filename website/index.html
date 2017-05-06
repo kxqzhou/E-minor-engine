@@ -16,8 +16,10 @@
 <body>
 <br />
 <h1 align="middle">The E-Minor Engine</h1>
-	<h2 align="middle">Ricardo Herrera, cs184-abx</h2>
-    <h2 align="middle">Kyle Zhou (cs184-abj)</h2>
+<center>
+<img src="images/patologo.png" style="width:140px;"></center>
+	<h2 align="middle">Ricardo Herrera - cs184-abx
+        <br>Kyle Zhou - cs184-abj</h2>
 
     <div class="padded">
 
@@ -28,17 +30,29 @@
 
     <h2 align="padding-left">Abstract</h2>
 
-        <p>For our CS184 final project we decided to try implementing a simple game engine. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular we wanted to try implementing light effects such as god rays and vignetting effects. Although our initial goal was quite optimistic in its scope, we were able to create a functional game with simple gameplay and features such as procedurally generation, glowing lights, and camera tracking.</p>
+        <p>For our CS184 final project we decided to try implementing a simple game engine, capable of running simple real time graphics and game mechanics. We hoped to try mimicking a scaled-down version of Unreal or Unity, with the capability to drag assets into a scene. In particular we wanted to try implementing light effects such as god rays and vignetting effects. Although our initial goal was quite optimistic in its scope, we were able to create a functional game with simple gameplay and features such as procedurally generation, glowing lights, and camera tracking.</p>
 
-    <h2 align="padding-left">Technical Approach and Implementation</h2>
+    <h2 align="padding-left">Technical Approach and Implementation Results</h2>
         
         <p>The bulk of this project was done using OpenGL and several supporting frameworks. We used GLFW for windows and context creation as well as keyboard input, GLM for mathematical operations such as vectors and matrixes, ASSIMP to load models, SOIL to load textures, and FreeType for text rendering. The LearnOpenGL tutorials were a significant resource in accomplishing our objectives.</p>
-
+    <img src="images/3.png" style="width:400px;">
+    <img src="images/4.png" style="width:300px;"></center>
         <h3>Camera</h3>
 
         <h3>Gameplay</h3>
-
+As soon as all the basic primitives could be set up, the next step was adding a playable character. So to begin we had one textured cube serve as the agent. Its position was determined relative to the camera. As the camera moves around the scene, the cube moves directly in front of it, maintaining a 3rd person point of view. 
+<center>
+    <img src="images/7.png" style="width:350px;">
+    <img src="images/6.png" style="width:350px;"></center>
+<p>The game we had in mind is as follows: under a minute, a character must try to eat up as many light emitting cubes as possible. These emissive cubes had slight vertical translational motion to signify that they were ready to be eaten. Additionally, the position for these lights were randomly generated. Random color values for the lights were also generated, so its readlly does feel like a new game with each spawn. We set up a distance formula that would determine if our character was near a cube. Upon contact, the cube would disappear and give our player another point. 
+<p>This is a cute attempt, but there wasn’t much drama. So to introduce some adversary play: I introduced more random lights, who unlike the other cubes, remained stationary (i.e. no vertical motion). These few random lights would actually slow down the movement of the character, and thus hamper the amount of lights the character could obtain under a minute. This was introduced to trick the careless player into eating these, since the faster the player moved, the less likely the player would be able to distinguish which cubes are the booby traps. In harder levels, the cubes will move very slowly, such that, if really careless, the player would not be able to distinguish the moving cubes from the stationary cubes.  
+        
         <h3>Lighting</h3>
+        Vertex shaders and Fragment shaders. 
+        <center>
+        <img src="images/2.png" style="width:400px;">
+        </center>
+
 
         <h3>Text</h3>
 
@@ -46,7 +60,12 @@
 
         <p></p>
 
-    <h2 align="padding-left">Results</h2>
+    <h2 align="padding-left">Final Remarks</h2>
+    <center>
+    <img src="images/first.jpg" style="width:340px;">
+    <img src="images/second.png" style="width:340px;"></center>
+    <br>This was a lot of work, to say the least. It was a very rewarding challenge to embark. OpenGL is something both of us have been wanting to explore, so this project was a great way to fulfill that. Both of us are quite invested in computer graphics for animation, and it was a good change to try and learn the more real time side of the spectrum. 
+        My copy of Game Engine Architecture should be arriving very soon. 
 
         <p>Unfortunately, due to limitations on our time as well as unexpected difficulty with compiling dependencies and cross platform compatibility, we were not able to add as many features as we would have liked. However, this project has taught us a lot about low-level graphics programming and we have each gained a massive appreciation for the technical prowess and effort that is required for game engine development. We hope that we can continue to extend and improve upon this project in the future.</p>
 
